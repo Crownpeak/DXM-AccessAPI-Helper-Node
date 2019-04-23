@@ -1,6 +1,7 @@
 'use strict';
 var AccessAsset = require('./AccessAsset');
 var Util = require('./Util');
+var Workflow = require('./Workflow');
 
 const apiErrors = {
     InstanceNameInvalid: 1
@@ -232,5 +233,6 @@ module.exports = {
     Api: api,
     AccessAsset: AccessAsset,
     Util: Util,
-    API: api
+    API: api,
+	Workflow:Workflow
 }
