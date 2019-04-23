@@ -3,6 +3,7 @@
   "description": "API for editing the cms through Node",
   "version": "0.1.0",
   "homepage": "y",
+  "main":"./CrownpeakAPI/API",
   "author": {
     "name": "playercontinue",
     "email": "dgreeberg@gmail.com",
