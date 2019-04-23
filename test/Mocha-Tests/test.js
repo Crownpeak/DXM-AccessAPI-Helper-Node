@@ -13,7 +13,7 @@ const promRealPath = promisify(fs.realpath);
 const expect = require('chai').expect;
 const should = require('chai').should();
 const chaiAssert = require('chai').assert;
-const Workflow = require('../../CrownpeakAPI/Workflow');
+const Workflow = api.Workflow;
 
 async function getLoginInfo() {
     var login = await readFile("D:\\Documents\\GitHub\\CP\\loginInfo.json");
