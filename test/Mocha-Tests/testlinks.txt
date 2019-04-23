@@ -1,0 +1,26 @@
+url(sample.png)
+url("sample.png")
+url(/test/sample.png)
+
+url(../redball3.png),
+                href="../Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a",
+                href="../../Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a",
+list-style: square url("http://www.example.com/redball1.png");
+<link itemprop="image" href="https://cdn.sstatic.net/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a">
+            temp
+            href
+
+            
+            <link itemprop="image" href="//www.google2.com/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a">
+            
+            <link itemprop="image" href="www.google.com/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a">
+            
+                list-style: square url("http://www.example.com/redball2.png");
+              
+                <link itemprop="image" href="www.test.com/Sites/stackoverflow/img/apple-touch-icon.png?v=c78bd457575a">
+              
+                list-style: square url(http://www.example.com/redball3.png);
+              
+              <script src="js/mobile.js" type="text/javascript"></script>
+             <%@ Page Title="" Language="C#" MasterPageFile="~/Site1.Master" AutoEventWireup="true" CodeBehind="home.aspx.cs" Inherits="masterpage.home" %> 
+              <%@ Page Title="" Language="C#" MasterPageFile="/test/Site1.Master" AutoEventWireup="true" CodeBehind="home.aspx.cs" Inherits="masterpage.home" %> 

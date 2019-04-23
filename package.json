@@ -1,0 +1,47 @@
+{
+  "name": "crownpeaknodeapi",
+  "description": "API for editing the cms through Node",
+  "version": "0.1.0",
+  "homepage": "y",
+  "author": {
+    "name": "playercontinue",
+    "email": "dgreeberg@gmail.com",
+    "url": "y"
+  },
+  "repository": {
+    "type": "git",
+    "url": "y"
+  },
+  "bugs": {
+    "url": "y"
+  },
+  "licenses": [
+    {
+      "type": "y",
+      "url": "y/blob/master/LICENSE-y"
+    }
+  ],
+  "engines": {
+    "node": "y"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "grunt": "^1.0.4",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-jshint": "^2.1.0",
+    "grunt-contrib-nodeunit": "^0.3.3"
+  },
+  "keywords": [
+    "crownpeak",
+    "api"
+  ],
+  "dependencies": {
+    "istextorbinary": "^2.5.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4",
+    "request-promise-native": "^1.0.7"
+  }
+}
