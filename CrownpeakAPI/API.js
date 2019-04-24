@@ -104,9 +104,9 @@ class api {
     /**
      * 
      * @param {string} urlPath - The path to call from the url 
-     * @param {JSON string} data - The data to send in the request
-     * @param {function(obj)} callback - function to run on succes
-     * @param {function(obj)} onError - function to run on error
+     * @param {JSON|string} data - The data to send in the request
+     * @param {function(object)} callback - function to run on succes
+     * @param {function(object)} onError - function to run on error
      */
     async postRequest(urlPath, data, callback, onError) {
         var currentAPI = this;
@@ -167,9 +167,9 @@ class api {
     /**
      * 
      * @param {string} urlPath - The path to call from the url 
-     * @param {JSON string} data - The data to send in the request
-     * @param {function(obj)} callback - function to run on succes
-     * @param {function(obj)} onError - function to run on error
+     * @param {JSON|string} data - The data to send in the request
+     * @param {function(object)} callback - function to run on succes
+     * @param {function(object)} onError - function to run on error
      */
     postRequestV1(urlPath, data, callback, onError) {
         var currentAPI = this;
