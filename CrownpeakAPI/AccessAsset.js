@@ -44,7 +44,9 @@ class AccessAsset {
      * @param {DownloadAssetsPrepareRequest} DownloadAssetsPrepareRequest - Request containing assetids 
      */
     async DownloadAssetsPrepareBuffer(DownloadAssetsPrepareRequest){
-        return await MakeCall.makeCall(this._api,"/Asset/DownloadAssetsPrepare/",DownloadAssetsPrepareRequest.toJson());
+        var baseString = await MakeCall.makeCall(this._api,"/Asset/DownloadAssetsPrepare/",DownloadAssetsPrepareRequest.toJson());
+        baseString.fileBuffer = Buffer.from(baseString.fileBuffer,'base64');
+        return baseString;
     }
 
     /**

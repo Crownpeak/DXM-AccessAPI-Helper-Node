@@ -151,6 +151,33 @@ describe('AssetTests', function() {
        
     });
 
+    it("Should download an asset as Buffer", async function() {
+        var content = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAMAAABh9kWNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NEFBRjFFQTU5QkY4MTFFNDk0NTE4MTJCRDI2RkY1RjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NEFBRjFFQTY5QkY4MTFFNDk0NTE4MTJCRDI2RkY1RjAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0QUFGMUVBMzlCRjgxMUU0OTQ1MTgxMkJEMjZGRjVGMCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0QUFGMUVBNDlCRjgxMUU0OTQ1MTgxMkJEMjZGRjVGMCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pgrzgu4AAAAGUExURf////8AAOta55MAAAAUSURBVHjaYmBgZGBgZAQRDAABBgAAKgAGs/vrsgAAAABJRU5ErkJggg==";
+        var API = new api.Api();
+        var loginOptions = await getLoginInfo();
+        await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        var accessAsset = new AccessAsset.AccessAsset(API);
+        var uploadAsset = await accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, 144205, "-1", "DownloadAssetTest", 11))
+        var existsResponse = await accessAsset.exists(uploadAsset.asset.id);
+        var downloadResponse;
+        try{
+        if (existsResponse.exists) {
+            downloadResponse = await accessAsset.DownloadAssetsPrepareBuffer(new AccessAsset.DownloadAssetsPrepareRequest([uploadAsset.asset.id]));
+            var tem = 3;
+        } else {
+            assert(false, false, "Asset Creation Failed, unable to test");
+        }
+        chaiAssert((downloadResponse.filename === "DownloadAssetTest"), "FileName Wrong");
+        await accessAsset.delete(uploadAsset.asset.id);
+    }catch(error){
+        await accessAsset.delete(uploadAsset.asset.id);
+        assert(false, false, "fail " + error);
+    }
+
+        
+       
+    });
+
     it('Should create a new asset in the cms', function(done) {
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
         var API = new api.Api();
