@@ -30,6 +30,22 @@ class AccessAsset {
     async attach(assetAttachRequest){
         return await MakeCall.makeCall(this._api,"/Asset/Attach/",assetAttachRequest.toJson());
     }
+    
+    /**
+     * 
+     * @param {DownloadAssetsPrepareRequest} DownloadAssetsPrepareRequest - Request containing assetids 
+     */
+    async DownloadAssetsPrepareString(DownloadAssetsPrepareRequest){
+        return await MakeCall.makeCall(this._api,"/Asset/DownloadAssetsPrepare/",DownloadAssetsPrepareRequest.toJson());
+    }
+
+     /**
+     * 
+     * @param {DownloadAssetsPrepareRequest} DownloadAssetsPrepareRequest - Request containing assetids 
+     */
+    async DownloadAssetsPrepareBuffer(DownloadAssetsPrepareRequest){
+        return await MakeCall.makeCall(this._api,"/Asset/DownloadAssetsPrepare/",DownloadAssetsPrepareRequest.toJson());
+    }
 
     /**
      * Branch an asset. Asset will be in the draft state
@@ -876,6 +892,37 @@ class AssetAttachRequest {
         }
     }
 }
+ /**
+     * 
+     * @param {int[]} assetIds - List of asset ids
+     */
+class DownloadAssetsPrepareRequest {
+    /**
+     * 
+     * @param {int[]} assetIds - List of asset ids
+     */
+    constructor(assetIds){
+        if(Array.isArray(assetIds)){
+            this._assetIds = assetIds;
+        }else{
+            this._assetIds = [assetIds];
+        }
+    }
+
+    set assetIds(assetIds){
+        if(Array.isArray(assetIds)){
+            this._assetIds = assetIds;
+        }else{
+            this._assetIds = [assetIds];
+        }
+    }
+
+    toJson(){
+        return {
+            "AssetIds": this._assetIds
+        }
+    }
+}
 
 
 module.exports = {
@@ -892,5 +939,6 @@ module.exports = {
     AssetPublishRefreshRequest: AssetPublishRefreshRequest,
     AssetRenameRequest: AssetRenameRequest,
     AssetAttachRequest:AssetAttachRequest,
+    DownloadAssetsPrepareRequest:DownloadAssetsPrepareRequest,
     MakeCall: MakeCall
 }
