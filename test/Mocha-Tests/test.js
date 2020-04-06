@@ -14,6 +14,7 @@ const expect = require('chai').expect;
 const should = require('chai').should();
 const chaiAssert = require('chai').assert;
 const Workflow = api.Workflow;
+const postTemplate = 145401;
 
 async function getLoginInfo() {
     var login = await readFile("D:\\Documents\\GitHub\\CP\\loginInfo.json");
@@ -96,12 +97,13 @@ function createAsset(assetName, API, callback) {
 }
 
 
-async function createAssetAsync(assetName, API, createFolder = false, folderId = 144205, workflowId = 11) {
+async function createAssetAsync(assetName, API, createFolder = false, folderId = 144205, workflowId = 11, templateId = 0,modelId = 0) {
     if (isNaN(folderId)) {
         folderId = 144205;
     }
     var assetId;
     var accessAsset;
+    var devTemplateLanguage = 0;
     var type = api.Util.AssetType.File;
     var loginOptions = await getLoginInfo();
     await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey)
@@ -110,7 +112,11 @@ async function createAssetAsync(assetName, API, createFolder = false, folderId =
         type = api.Util.AssetType.Folder;
     }
 
-    var AssetCreateRequest = new api.AccessAsset.AssetCreateRequest(assetName, folderId, 0, type, 0, 0, workflowId);
+    if(templateId!=0){
+        devTemplateLanguage = -1;
+    }
+
+    var AssetCreateRequest = new api.AccessAsset.AssetCreateRequest(assetName, folderId, modelId, type, devTemplateLanguage, templateId, workflowId);
     var response = await accessAsset.createAsset(AssetCreateRequest);
 
     assetId = response.asset.id;
@@ -300,6 +306,54 @@ describe('AssetTests', function() {
         });
 
     });
+
+    //Post Input and Post Save
+    it('should update perform postsave and post input',async function(){
+        var API = new api.Api();
+        
+            var assetResponse = await createAssetAsync("PostTestAsset", API,false,144205, 11, postTemplate);
+        
+        
+        var accessAsset = assetResponse.accessAsset;
+        var createId = assetResponse.assetId;
+        var issue = null;
+        var postSave = false;
+        var postInput = false;
+        try{
+            var updateRequest = new AccessAsset.AssetUpdateRequest(createId, {
+                "body": "test"
+            },{},true,true);
+            var updateResponse = await accessAsset.update(updateRequest);
+
+            var fields = await accessAsset.fields(createId);
+            fields = fields.fields;
+            for(var i=0;i<fields.length;i++){
+                if(fields[i].name ==="postinput"){
+                    postInput = fields[i].value
+                    
+                }
+
+                if(fields[i].name === "postsave"){
+                    postSave = fields[i].value
+                   
+                }
+            };
+           
+            assert(postInput == "saved", "Post Input did not run successfully");
+            assert(postSave == "saved", "PostSave did not run successfully");
+           
+        }catch(ex){
+            issue = ex;
+        }
+        
+
+        await accessAsset.delete(createId);
+        if (issue !== null) {
+            throw issue;
+        }
+    });
+
+
 
 
     it('should remove a value from the fields of an asset', function(done) {

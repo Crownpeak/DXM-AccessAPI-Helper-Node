@@ -490,11 +490,16 @@ class AssetUpdateRequest {
      * @param {number} assetId - The asset id to update
      * @param {JSON} fields - The fields to update in a JSON format {"key":"value","key":"value",...}
      * @param {Array} fieldsToDelete - The fields to delete in a list format ["key","key",...]
+     * @param {boolen} runPostInput - Run the post input on update
+     * @param {boolean} runPostSave - Run the post save on update
      */
-    constructor(assetId, fields, fieldsToDelete) {
+    constructor(assetId, fields, fieldsToDelete,runPostInput = false,runPostSave=false ) {
         this._assetId = assetId;
         this._fields = fields;
         this._fieldsToDelete = fieldsToDelete;
+       
+        this._runPostInput = runPostInput;
+        this._runPostSave =  runPostSave;
     }
 
 
@@ -510,12 +515,21 @@ class AssetUpdateRequest {
         this._fieldsToDelete = fieldsToDelete;
     }
 
+    set runPostInput(value){
+        this._runPostInput = value;
+    }
+
+    set runPostSave(value){
+        this._runPostSave = value;
+    }
+
     toJson() {
         return {
             "assetId": this._assetId,
             "fields": this._fields,
-            "fieldsToDelete": this._fieldsToDelete
-
+            "fieldsToDelete": this._fieldsToDelete,
+            "runPostInput":this._runPostInput,
+            "runPostSave":this._runPostSave
         };
     }
 
