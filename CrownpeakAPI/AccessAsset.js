@@ -1001,6 +1001,7 @@ module.exports = {
     AssetUploadRequest: AssetUploadRequest,
     AssetPagedRequest: AssetPagedRequest,
     AssetRouteRequest: AssetRouteRequest,
+    AssetCreateFolderWithModelRequest: AssetCreateFolderWithModelRequest,
     ExecuteWorkflowCommandRequest: ExecuteWorkflowCommandRequest,
     AssetMoveRequest: AssetMoveRequest,
     AssetPublishRequest: AssetPublishRequest,
@@ -1008,5 +1009,6 @@ module.exports = {
     AssetRenameRequest: AssetRenameRequest,
     AssetAttachRequest:AssetAttachRequest,
     DownloadAssetsPrepareRequest:DownloadAssetsPrepareRequest,
+    
     MakeCall: MakeCall
 }
