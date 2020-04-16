@@ -1,7 +1,7 @@
 {
   "name": "crownpeaknodeapi",
   "description": "API for editing the cms through Node",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "homepage": "y",
   "main": "./CrownpeakAPI/API",
   "author": {
