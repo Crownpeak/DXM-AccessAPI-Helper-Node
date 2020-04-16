@@ -200,6 +200,15 @@ class AccessAsset {
         return await MakeCall.makeCall(this._api,"/Report/sitesummary/",{});
     }
 
+    
+    /**
+     * Create a new folder that has models
+     * @param {AssetCreateFolderWithModel} assetCreateFolderWithModel - Object containing information to create a folder with model
+     */
+    async CreateModelWithFolder(assetCreateFolderWithModel){
+        return await MakeCall.makeCall(this._api,"/Asset/CreateFolderWithModel",assetCreateFolderWithModel.toJson());
+    }
+
 
 }
 /**
@@ -593,6 +602,49 @@ class AssetUploadRequest {
     }
 }
 
+class AssetCreateFolderWithModelRequest {
+    /**
+     * 
+     * @param {String} newName - Desired name of the folder 
+     * @param {int} destinationFolderId - The id of the folder to place the folder in
+     * @param {int} modelId - The id of the model 
+     */
+    constructor(newName,destinationFolderId,modelId){
+        this._newName = newName;
+        this._destinationFolderId = destinationFolderId;
+        this._modelId = modelId;
+    }
+
+    /**
+     * @param {string} newName - The name of the new asset
+     */
+    set newName(newName) {
+        this._newName = newName;
+    }
+
+
+    /**
+     * @param {number} destinationFolderId -The Destination folder to place it in
+     */
+    set destinationFolderId(destinationFolderId) {
+        this._destinationFolderId = destinationFolderId;
+    }
+
+    /**
+     * @param {string} modelId - The model id of the desired model for the folder
+     */
+    set modelId(modelId) {
+        this._modelId = newName;
+    }
+
+    toJson(){
+        return {
+            "newName":this._newName,
+            "destinationFolderId":this._destinationFolderId,
+            "modelId": this._modelId
+        }
+    }
+}
 
 /**
  * 
