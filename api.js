@@ -1,16 +1,16 @@
-'use strict';
-var AccessAsset = require('./AccessAsset');
-var Util = require('./Util');
-var Workflow = require('./Workflow');
+const AccessAsset = require("./common/accessAsset");
+const Util = require("./common/util");
+const Workflow = require("./common/workflow");
 
 const apiErrors = {
     InstanceNameInvalid: 1
 }
+
 /********************************************
  * Javascript API for utilizing the crownpeak API
- * All function are asyncronous and are operated upon by 
+ * All function are asyncronous and are operated upon by
  * promises
- * 
+ *
  ********************************************/
 class api {
 
@@ -41,8 +41,8 @@ class api {
      * @param {string} username - The username of the user
      * @param {string} password - The password of the user
      * @param {string} host - The host of the user
-     * @param {string} instance 
-     * @param {string} apiKey 
+     * @param {string} instance
+     * @param {string} apiKey
      */
     async login(username, password, host, instance, apiKey) {
         this.host = host;
@@ -102,8 +102,8 @@ class api {
     }
 
     /**
-     * 
-     * @param {string} urlPath - The path to call from the url 
+     *
+     * @param {string} urlPath - The path to call from the url
      * @param {JSON|string} data - The data to send in the request
      * @param {function(object)} callback - function to run on succes
      * @param {function(object)} onError - function to run on error
@@ -143,7 +143,7 @@ class api {
 
             if (error !== undefined && error["statusCode"] == Util.StatusCode.timeout && attempt < 3) {
                 attempt++;
-                /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set, 
+                /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set,
                 otherwise use the time given  */
                 if (error.response !== undefined && error.response.headers !== undefined && error.response.headers["retry-after"] !== undefined) {
                     var retryAfter = parseInt(error.response.headers["retry-after"], 10);
@@ -165,8 +165,8 @@ class api {
 
 
     /**
-     * 
-     * @param {string} urlPath - The path to call from the url 
+     *
+     * @param {string} urlPath - The path to call from the url
      * @param {JSON|string} data - The data to send in the request
      * @param {function(object)} callback - function to run on succes
      * @param {function(object)} onError - function to run on error
@@ -203,7 +203,7 @@ class api {
 
                 if (error !== undefined && error["statusCode"] == Util.StatusCode.timeout && attempt < 3) {
                     attempt++;
-                    /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set, 
+                    /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set,
                     otherwise use the time given  */
                     if (error.response !== undefined && error.response.headers !== undefined && error.response.headers["retry-after"] !== undefined) {
                         var retryAfter = parseInt(error.response.headers["retry-after"], 10);
@@ -226,13 +226,10 @@ class api {
 
 }
 
-
-
-
 module.exports = {
     Api: api,
     AccessAsset: AccessAsset,
     Util: Util,
     API: api,
-	Workflow:Workflow
+    Workflow:Workflow
 }

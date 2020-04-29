@@ -1,4 +1,5 @@
-var Util = require('./Util');
+const Util = require("util");
+
 /**
  * An object that contains methods for editing assets in the cms
  * through the API
@@ -992,7 +993,6 @@ class DownloadAssetsPrepareRequest {
     }
 }
 
-
 module.exports = {
     AccessAsset: AccessAsset,
     AssetCreateRequest: AssetCreateRequest,
@@ -1009,6 +1009,5 @@ module.exports = {
     AssetRenameRequest: AssetRenameRequest,
     AssetAttachRequest:AssetAttachRequest,
     DownloadAssetsPrepareRequest:DownloadAssetsPrepareRequest,
-    
     MakeCall: MakeCall
 }

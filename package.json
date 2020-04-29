@@ -1,32 +1,13 @@
 {
-  "name": "crownpeaknodeapi",
-  "description": "API for editing the cms through Node",
-  "version": "1.0.0",
-  "homepage": "y",
-  "main": "./CrownpeakAPI/API",
-  "author": {
-    "name": "playercontinue",
-    "email": "dgreeberg@gmail.com",
-    "url": "y"
-  },
-  "repository": {
-    "type": "git",
-    "url": "y"
-  },
-  "bugs": {
-    "url": "y"
-  },
-  "licenses": [
-    {
-      "type": "y",
-      "url": "y/blob/master/LICENSE-y"
-    }
-  ],
-  "engines": {
-    "node": "y"
-  },
+  "name": "crownpeak-dxm-accessapi-helper",
+  "version": "1.1.0",
+  "description": "Crownpeak Digital Experience Management (DXM)Software Development Kit (SDK) for React has been constructed to assist the Single Page App developer in developing client-side applications that leverage DXM for content management purposes.",
+  "repository": "https://github.com/Crownpeak/DXM-AccessAPI-Helper-Node",
+  "main": "api.js",
+  "author": "Crownpeak Technology, inc.",
+  "license": "MIT",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha tests/mocha/*.js"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -35,12 +16,10 @@
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-contrib-nodeunit": "^0.3.3"
   },
-  "keywords": [
-    "crownpeak",
-    "api"
-  ],
   "dependencies": {
     "istextorbinary": "^2.5.1",
+    "mocha": "^7.1.2",
+    "react-native-dotenv": "^0.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "request-promise-native": "^1.0.7"

@@ -1,4 +1,5 @@
-var api = require('../../CrownpeakAPI/API');
+const dotenv = require("dotenv");
+var api = require('../../api');
 const AccessAsset = api.AccessAsset;
 var assert = require('assert');
 var fs = require('fs');
@@ -17,8 +18,55 @@ const Workflow = api.Workflow;
 const postTemplate = 145401;
 const testFolder = 144205;
 async function getLoginInfo() {
-    var login = await readFile("D:\\Documents\\GitHub\\CP\\loginInfo.json");
-    return JSON.parse(login);
+    const cwd = process.env.INIT_CWD;
+    let config = process.env;
+
+    if (fs.existsSync(cwd + "/.env")) {
+        Object.assign(config, dotenv.parse(fs.readFileSync(cwd + "/.env")))
+    }
+
+    const validateInput = (config) => {
+        let ok = true;
+        if (!config.CMS_INSTANCE) {
+            console.error("Fatal error: CMS_INSTANCE not set");
+            ok = false;
+        }
+        if (!config.CMS_USERNAME) {
+            console.error("Fatal error: CMS_USERNAME not set");
+            ok = false;
+        }
+        if (!config.CMS_PASSWORD) {
+            console.error("Fatal error: CMS_PASSWORD not set");
+            ok = false;
+        }
+        if (!config.CMS_API_KEY) {
+            console.error("Fatal error: CMS_API_KEY not set");
+            ok = false;
+        }
+        if (!config.CMS_FOLDER_PATH) {
+            console.error("Fatal error: CMS_FOLDER_PATH not set");
+            ok = false;
+        }
+        if (!config.CMS_MODEL_ASSET_ID) {
+            console.error("Fatal error: CMS_MODEL_ASSET_ID not set");
+            ok = false;
+        }
+        if (!config.CMS_WORKFLOW) {
+            console.warn("Warning: CMS_WORKFLOW not set");
+        }
+        return ok;
+    };
+
+    return {
+        "username": config.CMS_USERNAME,
+        "password": config.CMS_PASSWORD,
+        "apikey": config.CMS_API_KEY,
+        "host": config.CMS_HOST,
+        "instance": config.CMS_INSTANCE,
+        "cmsFolder": config.CMS_FOLDER_PATH,
+        "model": config.CMS_MODEL_ASSET_ID,
+        "workflow": config.CMS_WORKFLOW
+    };
 }
 
 describe('Authenticate', async function() {
@@ -142,10 +190,10 @@ describe('AssetTests', function() {
         var ReadResponse = await accessAsset.Read(createFolderResponse.asset.id);
         assert(readResponse.asset.model_id == 800,"Asset was not created with model");
         }catch(ex){
-            
+
         }
         await accessAsset.delete(createFolderResponse.asset.id);
-        
+
 
     });
 
@@ -163,7 +211,7 @@ describe('AssetTests', function() {
             downloadResponse = await accessAsset.DownloadAssetsPrepareString(new AccessAsset.DownloadAssetsPrepareRequest([uploadAsset.asset.id]));
             var tem = 3;
         } else {
-            assert(false, false, "Asset Creation Failed, unable to test");
+            assert(false, false, "Asset Creation Failed, unable to tests");
         }
         chaiAssert((downloadResponse.filename === "DownloadAssetTest"), "FileName Wrong");
         chaiAssert((downloadResponse.fileBuffer === content), "Content Wrong");
@@ -173,8 +221,8 @@ describe('AssetTests', function() {
         assert(false, false, "fail " + error);
     }
 
-        
-       
+
+
     });
 
     it("Should download an asset as Buffer", async function() {
@@ -191,7 +239,7 @@ describe('AssetTests', function() {
             downloadResponse = await accessAsset.DownloadAssetsPrepareBuffer(new AccessAsset.DownloadAssetsPrepareRequest([uploadAsset.asset.id]));
             var tem = 3;
         } else {
-            assert(false, false, "Asset Creation Failed, unable to test");
+            assert(false, false, "Asset Creation Failed, unable to tests");
         }
         chaiAssert((downloadResponse.filename === "DownloadAssetTest"), "FileName Wrong");
         await accessAsset.delete(uploadAsset.asset.id);
@@ -200,8 +248,8 @@ describe('AssetTests', function() {
         assert(false, false, "fail " + error);
     }
 
-        
-       
+
+
     });
 
     it('Should create a new asset in the cms', function(done) {
@@ -330,10 +378,10 @@ describe('AssetTests', function() {
     //Post Input and Post Save
     it('should update perform postsave and post input',async function(){
         var API = new api.Api();
-        
+
             var assetResponse = await createAssetAsync("PostTestAsset", API,false,testFolder, 11, postTemplate);
-        
-        
+
+
         var accessAsset = assetResponse.accessAsset;
         var createId = assetResponse.assetId;
         var issue = null;
@@ -350,22 +398,22 @@ describe('AssetTests', function() {
             for(var i=0;i<fields.length;i++){
                 if(fields[i].name ==="postinput"){
                     postInput = fields[i].value
-                    
+
                 }
 
                 if(fields[i].name === "postsave"){
                     postSave = fields[i].value
-                   
+
                 }
             };
-           
+
             assert(postInput == "saved", "Post Input did not run successfully");
             assert(postSave == "saved", "PostSave did not run successfully");
-           
+
         }catch(ex){
             issue = ex;
         }
-        
+
 
         await accessAsset.delete(createId);
         if (issue !== null) {
@@ -472,7 +520,7 @@ describe('AssetTests', function() {
         });
 
     });
-    //TODO add test for testing replacing an uploaded asset
+    //TODO add tests for testing replacing an uploaded asset
     it('Should get information about asset', function(done) {
         createAsset("ReadAsset", new api.Api(),
             (assetId, accessAsset) => {
@@ -585,7 +633,7 @@ describe('AssetTests', function() {
         try {
             await accessAsset.delete(assetResponse.assetId);
             var readResponse1 = await accessAsset.read(assetResponse.assetId);
-            assert(readResponse1.asset.is_deleted, true, "Asset was not deleted, rest of test invalid");
+            assert(readResponse1.asset.is_deleted, true, "Asset was not deleted, rest of tests invalid");
             await accessAsset.undelete(assetResponse.assetId);
             var readResponse2 = await accessAsset.read(assetResponse.assetId);
             assert((readResponse2.asset.is_deleted === false), "Asset was not undeleted");
@@ -607,7 +655,7 @@ describe('AssetTests', function() {
 
         var issue = null;
         try {
-            var attachResponse = await accessAsset.attach(new AccessAsset.AssetAttachRequest(assetResponse.assetId, content, "test.png"));
+            var attachResponse = await accessAsset.attach(new AccessAsset.AssetAttachRequest(assetResponse.assetId, content, "tests.png"));
             assert(attachResponse.isSuccessful, "Wasn't able to attach");
             chaiAssert.isNotNull(attachResponse.displayUrl, "Not successfully attached");
         } catch (error) {
@@ -746,7 +794,7 @@ describe("AssetExists", function() {
     });
 
 
-    it('Should correctly return multiple exists test', function(done) {
+    it('Should correctly return multiple exists tests', function(done) {
         var promiseList = [];
         for (var i = 0; i < 30; i++) {
             promiseList.push(existsasync("-1", done, false));

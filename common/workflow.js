@@ -1,5 +1,5 @@
-var Util = require('./Util');
-var MakeCall = require('./AccessAsset').MakeCall;
+var MakeCall = require('./accessAsset').MakeCall;
+
 /**
  * An object that contains methods for getting information on workflows
  */

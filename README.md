@@ -1,17 +1,5 @@
-# Crownpeak API in Node
+<a href="https://www.crownpeak.com" target="_blank">![Crownpeak Logo](images/crownpeak-logo.png?raw=true "Crownpeak Logo")</a>
 
-The crownpeak API for use in Node
-
-## Running Locally
-
-In your application add 
-
-var crownpeakAPI = require('crownpeaknodeapi');
-
-```
-npm i crownpeaknodeapi --save-dev
-```
-
-
-## Available Options
-See https://developer.crownpeak.com/Documentation/AccessAPI/index.html
+# Crownpeak Digital Experience Management (DXM) Access API Helper for Node
+Crownpeak Digital Experience Management (DXM) Access API Helper for Node has been constructed to assist
+in developing client-side applications that leverage DXM for content management purposes.
