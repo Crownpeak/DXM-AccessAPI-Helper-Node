@@ -1,4 +1,4 @@
-const Util = require("util");
+const Util = require("./util");
 
 /**
  * An object that contains methods for editing assets in the cms

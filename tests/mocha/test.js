@@ -15,8 +15,8 @@ const expect = require('chai').expect;
 const should = require('chai').should();
 const chaiAssert = require('chai').assert;
 const Workflow = api.Workflow;
-const postTemplate = 145401;
-const testFolder = 144205;
+// const postTemplate = 145401;
+let testFolder = 0;
 async function getLoginInfo() {
     const cwd = process.env.INIT_CWD;
     let config = process.env;
@@ -57,7 +57,7 @@ async function getLoginInfo() {
         return ok;
     };
 
-    return {
+    let result = {
         "username": config.CMS_USERNAME,
         "password": config.CMS_PASSWORD,
         "apikey": config.CMS_API_KEY,
@@ -65,8 +65,12 @@ async function getLoginInfo() {
         "instance": config.CMS_INSTANCE,
         "cmsFolder": config.CMS_FOLDER_PATH,
         "model": config.CMS_MODEL_ASSET_ID,
-        "workflow": config.CMS_WORKFLOW
+        "workflow": config.CMS_WORKFLOW || 11,
+        "workflowCommand": config.CMS_WORKFLOW_COMMAND || 38
     };
+    if (result.cmsFolder.slice(-1) !== '/') 
+        result.cmsFolder = result.cmsFolder + "/";
+    return result;
 }
 
 describe('Authenticate', async function() {
@@ -145,8 +149,9 @@ function createAsset(assetName, API, callback) {
 }
 
 
-async function createAssetAsync(assetName, API, createFolder = false, folderId = 144205, workflowId = 11, templateId = 0,modelId = 0) {
+async function createAssetAsync(assetName, API, createFolder = false, folderId, workflowId, templateId = 0,modelId = 0) {
     if (isNaN(folderId)) {
+        await ensureTestFolder();
         folderId = testFolder;
     }
     var assetId;
@@ -164,6 +169,7 @@ async function createAssetAsync(assetName, API, createFolder = false, folderId =
         devTemplateLanguage = -1;
     }
 
+    if (!workflowId && workflowId !== 0 && !createFolder) workflowId = loginOptions.workflow;
     var AssetCreateRequest = new api.AccessAsset.AssetCreateRequest(assetName, folderId, modelId, type, devTemplateLanguage, templateId, workflowId);
     var response = await accessAsset.createAsset(AssetCreateRequest);
 
@@ -174,14 +180,25 @@ async function createAssetAsync(assetName, API, createFolder = false, folderId =
     };
 }
 
+async function ensureTestFolder() {
+    if (!testFolder) {
+        var API = new api.Api();
+        var loginOptions = await getLoginInfo();
+        await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        var accessAsset = new AccessAsset.AccessAsset(API);
+        var result = await accessAsset.exists(loginOptions.cmsFolder);
+        if (result && result.exists && result.assetId) testFolder = result.assetId;
+    }
+}
+
 describe('AssetTests', function() {
     this.timeout(15000);
-
 
     it("Should create a folder with models", async function() {
         var API = new api.Api();
         var loginOptions = await getLoginInfo();
         await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
         var accessAsset = new AccessAsset.AccessAsset(API);
         var createFolderResponse = await accessAsset.CreateModelWithFolder(new api.AccessAsset.AssetCreateFolderWithModelRequest("temp",testFolder,800));
         try{
@@ -202,8 +219,9 @@ describe('AssetTests', function() {
         var API = new api.Api();
         var loginOptions = await getLoginInfo();
         await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
         var accessAsset = new AccessAsset.AccessAsset(API);
-        var uploadAsset = await accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "DownloadAssetTest", 11))
+        var uploadAsset = await accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "DownloadAssetTest", loginOptions.workflow))
         var existsResponse = await accessAsset.exists(uploadAsset.asset.id);
         var downloadResponse;
         try{
@@ -230,8 +248,9 @@ describe('AssetTests', function() {
         var API = new api.Api();
         var loginOptions = await getLoginInfo();
         await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
         var accessAsset = new AccessAsset.AccessAsset(API);
-        var uploadAsset = await accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "DownloadAssetTest", 11))
+        var uploadAsset = await accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "DownloadAssetTest", loginOptions.workflow))
         var existsResponse = await accessAsset.exists(uploadAsset.asset.id);
         var downloadResponse;
         try{
@@ -256,8 +275,9 @@ describe('AssetTests', function() {
         process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
         var API = new api.Api();
         var accessAsset;
-        getLoginInfo().then(function(loginOptions) {
-            API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey).then(function(response) {
+        getLoginInfo().then(async function(loginOptions) {
+            API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey).then(async function(response) {
+                await ensureTestFolder();
                 accessAsset = new api.AccessAsset.AccessAsset(API);
                 var AssetCreateRequest = new api.AccessAsset.AssetCreateRequest("CreateAsset", testFolder, 801, api.Util.AssetType.File);
 
@@ -290,7 +310,8 @@ describe('AssetTests', function() {
         //Check asset already exists, then check creating an asset fails
         getLoginInfo().then(function(loginOptions) {
             var API = new api.Api();
-            API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey).then(function(response) {
+            API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey).then(async function(response) {
+                await ensureTestFolder();
                 var accessAsset = new api.AccessAsset.AccessAsset(API);
                 var AssetCreateRequest = new api.AccessAsset.AssetCreateRequest("test", testFolder, 801, api.Util.AssetType.File);
 
@@ -316,8 +337,9 @@ describe('AssetTests', function() {
         var API = new api.Api();
         var loginOptions = await getLoginInfo();
         await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
         var accessAsset = new AccessAsset.AccessAsset(API);
-        var createResponse = await accessAsset.createAsset(new api.AccessAsset.AssetCreateRequest("CreateBranch", testFolder, 0, api.Util.AssetType.File, 0, 0, 11));
+        var createResponse = await accessAsset.createAsset(new api.AccessAsset.AssetCreateRequest("CreateBranch", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
         var branchResponse = await accessAsset.branch(createResponse.asset.id);
         var existsResponse = await accessAsset.exists(createResponse.asset.id);
         if (existsResponse.exists) {
@@ -336,11 +358,13 @@ describe('AssetTests', function() {
     //TODO figure out why exists returns true on deleted assets
     it('Should delete an asset', function(done) {
         var API = new api.Api();
-        createAsset("testDelete3", API, function(assetId, accessAsset) {
-            accessAsset.delete(assetId).then(function(response) {
-                existsCall("/David Test/testDelete3", done, false, accessAsset);
-            }).catch(function(error) {
-                done(error);
+        getLoginInfo().then((loginOptions) => {
+            createAsset("testDelete3", API, function(assetId, accessAsset) {
+                accessAsset.delete(assetId).then(function(response) {
+                    existsCall(loginOptions.cmsFolder + "testDelete3", done, false, accessAsset);
+                }).catch(function(error) {
+                    done(error);
+                });
             });
         });
 
@@ -375,54 +399,52 @@ describe('AssetTests', function() {
 
     });
 
+    // TODO: make this create what it needs to do its job
     //Post Input and Post Save
-    it('should update perform postsave and post input',async function(){
-        var API = new api.Api();
+    // it('should update perform postsave and post input',async function(){
+    //     await ensureTestFolder();
+    //     var API = new api.Api();
 
-            var assetResponse = await createAssetAsync("PostTestAsset", API,false,testFolder, 11, postTemplate);
+    //     var assetResponse = await createAssetAsync("PostTestAsset", API,false,testFolder, 11, postTemplate);
 
+    //     var accessAsset = assetResponse.accessAsset;
+    //     var createId = assetResponse.assetId;
+    //     var issue = null;
+    //     var postSave = false;
+    //     var postInput = false;
+    //     try{
+    //         var updateRequest = new AccessAsset.AssetUpdateRequest(createId, {
+    //             "body": "test"
+    //         },{},true,true);
+    //         var updateResponse = await accessAsset.update(updateRequest);
 
-        var accessAsset = assetResponse.accessAsset;
-        var createId = assetResponse.assetId;
-        var issue = null;
-        var postSave = false;
-        var postInput = false;
-        try{
-            var updateRequest = new AccessAsset.AssetUpdateRequest(createId, {
-                "body": "test"
-            },{},true,true);
-            var updateResponse = await accessAsset.update(updateRequest);
+    //         var fields = await accessAsset.fields(createId);
+    //         fields = fields.fields;
+    //         for(var i=0;i<fields.length;i++){
+    //             if(fields[i].name ==="postinput"){
+    //                 postInput = fields[i].value
 
-            var fields = await accessAsset.fields(createId);
-            fields = fields.fields;
-            for(var i=0;i<fields.length;i++){
-                if(fields[i].name ==="postinput"){
-                    postInput = fields[i].value
+    //             }
 
-                }
+    //             if(fields[i].name === "postsave"){
+    //                 postSave = fields[i].value
 
-                if(fields[i].name === "postsave"){
-                    postSave = fields[i].value
+    //             }
+    //         };
 
-                }
-            };
+    //         assert(postInput == "saved", "Post Input did not run successfully");
+    //         assert(postSave == "saved", "PostSave did not run successfully");
 
-            assert(postInput == "saved", "Post Input did not run successfully");
-            assert(postSave == "saved", "PostSave did not run successfully");
-
-        }catch(ex){
-            issue = ex;
-        }
-
-
-        await accessAsset.delete(createId);
-        if (issue !== null) {
-            throw issue;
-        }
-    });
+    //     }catch(ex){
+    //         issue = ex;
+    //     }
 
 
-
+    //     await accessAsset.delete(createId);
+    //     if (issue !== null) {
+    //         throw issue;
+    //     }
+    // });
 
     it('should remove a value from the fields of an asset', function(done) {
 
@@ -444,7 +466,6 @@ describe('AssetTests', function() {
                                     done();
                                 })
                                 .catch((error) => done(error));
-                            accessAsset.delete(assetId);
                         })
 
                         .catch(function(error) {
@@ -453,13 +474,6 @@ describe('AssetTests', function() {
                 });
         });
     });
-
-
-
-
-
-
-
 
     it('Should get a list of fields', function(done) {
 
@@ -498,11 +512,11 @@ describe('AssetTests', function() {
         getLoginInfo().then(function(loginOptions) {
             var API = new api.Api();
             API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey)
-                .then(function(response) {
-
+                .then(async function(response) {
+                    await ensureTestFolder();
 
                     var accessAsset = new api.AccessAsset.AccessAsset(API);
-                    accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "uploadTest1", 11)).then(function(response) {
+                    accessAsset.upload(new api.AccessAsset.AssetUploadRequest(content, testFolder, "-1", "uploadTest1", loginOptions.workflow)).then(function(response) {
                             existsCallV2(response.asset.id, done, true, accessAsset, function() {
                                 accessAsset.delete(response.asset.id).then(function() {
                                     done();
@@ -536,24 +550,27 @@ describe('AssetTests', function() {
     });
 
     it('Should Route an Asset To Live', async function() {
-        var routeTo = 785;
-        var results = await createAssetAsync("RoutePractice", new api.API());
+        await ensureTestFolder();
+        var DRAFT = 780;
+        var LIVE = 785;
+        var loginOptions = await getLoginInfo();
+        var results = await createAssetAsync("RoutePractice", new api.API(), false, testFolder, loginOptions.workflow);
         var accessAsset = results.accessAsset;
         var createId = results.assetId;
-        var response = await accessAsset.route(new api.AccessAsset.AssetRouteRequest(createId, routeTo));
+        var response = await accessAsset.route(new api.AccessAsset.AssetRouteRequest(createId, LIVE));
 
         var readResponse = await accessAsset.read(createId);
-        assert(readResponse.asset.status, routeTo, "Asset failed to route");
+        assert(readResponse.asset.status, LIVE, "Asset failed to route");
 
+        await accessAsset.route(new api.AccessAsset.AssetRouteRequest(createId, DRAFT));
         await accessAsset.delete(createId);
     });
 
-
-
     it('Should move an asset to a new folder', async function() {
+        await ensureTestFolder();
         var API = new api.API();
         var assetResponse = await createAssetAsync("MoveAssetTest", API, false);
-        var folderResponse = await createAssetAsync("MoveAssetTestFolder", API, true, 144234);
+        var folderResponse = await createAssetAsync("MoveAssetFolderTest", API, true, testFolder);
         var accessAsset = assetResponse.accessAsset;
         try {
             var moveResponse = await accessAsset.move(new AccessAsset.AssetMoveRequest(assetResponse.assetId, folderResponse.assetId));
@@ -570,8 +587,9 @@ describe('AssetTests', function() {
     });
 
     it("Should publish an asset that doesn't have a workflow", async function() {
+        await ensureTestFolder();
         var API = new api.Api();
-        var assetResponse = await createAssetAsync("PublishTest", API, false, 144234, 0);
+        var assetResponse = await createAssetAsync("PublishTest", API, false, testFolder, 0);
         var accessAsset = assetResponse.accessAsset;
         var issue = null;
         try {
@@ -595,7 +613,7 @@ describe('AssetTests', function() {
         var accessAsset = new AccessAsset.AccessAsset(API);
         var issue = null;
         try {
-            var publishResponse = await accessAsset.publishRefresh(new AccessAsset.AssetPublishRefreshRequest([144234], 785, true));
+            var publishResponse = await accessAsset.publishRefresh(new AccessAsset.AssetPublishRefreshRequest([testFolder], 785, true));
             assert(publishResponse.isSuccessful, "Publish was not successful from call");
         } catch (error) {
             issue = error;
@@ -670,18 +688,22 @@ describe('AssetTests', function() {
 
     it("Should move an asset through workflow", async function() {
         var API = new api.Api();
-        var assetResponse = await createAssetAsync("AttachTest", API);
+        var assetResponse = await createAssetAsync("WorkflowCommandTest", API);
         var accessAsset = assetResponse.accessAsset;
 
+        var loginOptions = await getLoginInfo();
         var issue = null;
         try {
-            var executeResponse = await accessAsset.executeWorkflowCommand(new AccessAsset.ExecuteWorkflowCommandRequest(assetResponse.assetId, 38, true));
+            var DRAFT = 780;
+            var STAGE = 783;
+            var executeResponse = await accessAsset.executeWorkflowCommand(new AccessAsset.ExecuteWorkflowCommandRequest(assetResponse.assetId, loginOptions.workflowCommand, true));
             var readResponse = await accessAsset.read(assetResponse.assetId);
-            chaiAssert.equal(readResponse.asset.status, 783, "Not in the stage state");
+            chaiAssert.equal(readResponse.asset.status, STAGE, "Not in the stage state");
         } catch (error) {
             issue = error;
         }
 
+        await accessAsset.route(new api.AccessAsset.AssetRouteRequest(assetResponse.assetId, DRAFT));
         await accessAsset.delete(assetResponse.assetId);
         if (issue !== null) {
             throw issue;
@@ -690,7 +712,7 @@ describe('AssetTests', function() {
 
     it("Should log a message onto the asset", async function() {
         var API = new api.Api();
-        var assetResponse = await createAssetAsync("AttachTest", API);
+        var assetResponse = await createAssetAsync("LogTest", API);
         var accessAsset = assetResponse.accessAsset;
 
         var issue = null;
@@ -712,17 +734,19 @@ describe('AssetTests', function() {
 describe("Workflow", function() {
     this.timeout(10000);
     it("Should get a list of workflows", async function() {
+        var loginOptions = await getLoginInfo();
         var API = await loginAsync();
         var workflow = new Workflow(API);
         var workflowResponse = await workflow.getList();
-        chaiAssert.equal(workflowResponse.workflows["11"].name, "Basic Workflow", "Did not find Basic Workflow in list");
+        chaiAssert.equal(workflowResponse.workflows[loginOptions.workflow].name, "Basic Workflow", "Did not find Basic Workflow in list");
     });
 
 
     it("Should get info about one workflow", async function() {
+        var loginOptions = await getLoginInfo();
         var API = await loginAsync();
         var workflow = new Workflow(API);
-        var workflowResponse = await workflow.read(11);
+        var workflowResponse = await workflow.read(loginOptions.workflow);
         chaiAssert.equal(workflowResponse.workflow.name, "Basic Workflow", "Did not find Basic Workflow in list");
     });
 });
@@ -731,19 +755,21 @@ describe("AssetsLists", function() {
     this.timeout(20000);
 
     it('should get a list of assets back', function(done) {
-        var API = new api.Api();
-        createAsset("Paged1", API, function(assetId, accessAsset) {
-            createAsset("Paged2", API, function(assetId1, accessAsset) {
-                accessAsset.paged(new api.AccessAsset.AssetPagedRequest(testFolder, testFolder, 0, true, true, api.Util.OrderType.Ascending, 2, false, "", api.Util.VisibilityType.Normal))
-                    .then(function(response) {
-                        assert.strictEqual(response.assets.length, 2);
-                        var promiseList = [accessAsset.delete(assetId1), accessAsset.delete(assetId)];
-                        Promise.all(promiseList)
-                            .then(() => done())
-                            .catch((error) => done(error));
+        ensureTestFolder().then(() => {
+            var API = new api.Api();
+            createAsset("Paged1", API, function(assetId, accessAsset) {
+                createAsset("Paged2", API, function(assetId1, accessAsset) {
+                    accessAsset.paged(new api.AccessAsset.AssetPagedRequest(testFolder, 0, 0, true, true, api.Util.OrderType.Ascending, 2, false, "", api.Util.VisibilityType.Normal))
+                        .then(function(response) {
+                            assert.strictEqual(response.assets.length, 2);
+                            var promiseList = [accessAsset.delete(assetId1), accessAsset.delete(assetId)];
+                            Promise.all(promiseList)
+                                .then(() => done())
+                                .catch((error) => done(error));
 
-                    });
+                        });
 
+                });
             });
         });
     });
@@ -753,24 +779,28 @@ describe("AssetExists", function() {
     this.timeout(15000);
 
     it('Should return asset exists on path', function(done) {
-        createAsset("AssetExistsTest", new api.Api(), function(assetId, accessAsset) {
-            existsV2("/David Test2/AssetExistsTest", done, true, function(response) {
+        getLoginInfo().then((loginOptions) => {
+            createAsset("AssetExistsTest", new api.Api(), function(assetId, accessAsset) {
+            existsV2(loginOptions.cmsFolder + "AssetExistsTest", done, true, function(response) {
                 accessAsset.delete(assetId)
                     .then(function() {
                         done();
                     });
+                });
             });
-        })
-
+        });
 
     });
 
     it('Should return asset does not exist on path', function(done) {
-        exists("/David Test/bob", done, false);
+        getLoginInfo().then((loginOptions) => {
+            exists(loginOptions.cmsFolder + "bob", done, false);
+        });
     });
 
-    it('Should return asset exists on id', function(done) {
-        exists("144205", done, true);
+    it('Should return asset exists on id', async function() {
+        await ensureTestFolder();
+        await exists(testFolder, null, true);
     });
 
     it('Should return asset does not exist on id', function(done) {
@@ -781,11 +811,12 @@ describe("AssetExists", function() {
         var API = new api.Api();
         var loginOptions = await getLoginInfo();
         await API.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
         var accessAsset = new AccessAsset.AccessAsset(API);
-        var createResponse = await accessAsset.createAsset(new api.AccessAsset.AssetCreateRequest("CheckMultipleAssetsOnPath", testFolder, 0, api.Util.AssetType.File, 0, 0, 11));
+        var createResponse = await accessAsset.createAsset(new api.AccessAsset.AssetCreateRequest("CheckMultipleAssetsOnPath", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
         var branchResponse = await accessAsset.branch(createResponse.asset.id);
         var existsResponseId = await accessAsset.exists(createResponse.asset.id);
-        var existsResponsePath = await accessAsset.exists("/David Test/CheckMultipleAssetsOnPath");
+        var existsResponsePath = await accessAsset.exists(loginOptions.cmsFolder + "CheckMultipleAssetsOnPath");
         assert(existsResponseId.assetId, existsResponsePath.assetId, "Path returns different asset than first created");
 
         await accessAsset.delete(createResponse.asset.id);
@@ -797,7 +828,7 @@ describe("AssetExists", function() {
     it('Should correctly return multiple exists tests', function(done) {
         var promiseList = [];
         for (var i = 0; i < 30; i++) {
-            promiseList.push(existsasync("-1", done, false));
+            promiseList.push(existsasync("-1", null, false));
         }
         Promise.all(promiseList)
             .then(() => {
@@ -807,12 +838,7 @@ describe("AssetExists", function() {
             });
     });
 
-
-
 });
-
-
-
 
 
 function existsCallV2(id, done, shouldExist, accessAsset, callback) {
