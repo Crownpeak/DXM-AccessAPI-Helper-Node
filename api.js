@@ -1,4 +1,4 @@
-const AccessAsset = require("./common/accessAsset");
+const Asset = require("./common/asset");
 const Util = require("./common/util");
 const Workflow = require("./common/workflow");
 
@@ -24,6 +24,8 @@ class api {
         this.https = require("https");
         this.requestLib = require('request-promise');
         this.webAPIRoot = "/cpt_webservice/accessapi/";
+        this.Asset = new Asset(this);
+        this.Workflow = new Workflow(this);
     }
 
 
@@ -71,7 +73,7 @@ class api {
 
         if (parentResponse !== undefined && Util.IsValidJSONString(parentResponse.body)) {
             var jsonBody = JSON.parse(parentResponse.body);
-            if (jsonBody.resultCode === Util.ResponseMessages.success) {
+            if (jsonBody.resultCode === Util.ResponseMessages.Success) {
                 //User was successfully authenticated
                 this._isAuthenticated = true;
                 this.cookie = parentResponse.headers["set-cookie"];
@@ -87,7 +89,6 @@ class api {
         }
 
         return parentResponse;
-
     }
 
 
@@ -141,7 +142,7 @@ class api {
         } catch (error) {
             var timeoutWait = Util.InitialTimeoutWait;
 
-            if (error !== undefined && error["statusCode"] == Util.StatusCode.timeout && attempt < 3) {
+            if (error !== undefined && error["statusCode"] == Util.StatusCode.Timeout && attempt < 3) {
                 attempt++;
                 /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set,
                 otherwise use the time given  */
@@ -201,7 +202,7 @@ class api {
             function(error) {
                 var timeoutWait = Util.InitialTimeoutWait;
 
-                if (error !== undefined && error["statusCode"] == Util.StatusCode.timeout && attempt < 3) {
+                if (error !== undefined && error["statusCode"] == Util.StatusCode.Timeout && attempt < 3) {
                     attempt++;
                     /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set,
                     otherwise use the time given  */
@@ -224,12 +225,9 @@ class api {
         );
     }
 
+    Asset = Asset;
+    Util = Util;
+    Workflow = Workflow;
 }
 
-module.exports = {
-    Api: api,
-    AccessAsset: AccessAsset,
-    Util: Util,
-    API: api,
-    Workflow:Workflow
-}
+module.exports = api;

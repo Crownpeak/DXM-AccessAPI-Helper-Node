@@ -20,13 +20,13 @@ const VisibilityType = {
 }
 
 const StatusCode = {
-    timeout: 429
+    Timeout: 429
 }
 
 const ResponseMessages = {
-    success: "conWS_Success",
-    invalidUser: "conWS_InvalidUserNameOrPassword",
-    assetAlreadyExists: "conWS_ConflictAlreadyExists"
+    Success: "conWS_Success",
+    InvalidUser: "conWS_InvalidUserNameOrPassword",
+    AssetAlreadyExists: "conWS_ConflictAlreadyExists"
 }
 
 /**
@@ -98,6 +98,67 @@ class Debug {
 }
 
 /**
+ * Function for making call to the cms and return the data async
+ * @param {api.api} api - The api to make all calls
+ * @param {string} urlPath - The uri path of the request
+ * @param {JSON} data - The data being sent in json format
+ * @param {function(JSON)} callback - A function to be run on success if desired
+ * @param {function(JSON)} onError - A function to run on error
+ */
+const makeCall = async (api, urlPath, data, callback, onError) => {
+    var makeCallResponse = new MakeCallResponse();
+    await api.postRequest(urlPath, data, function(response) {
+            makeCallResponse.parentResponse = response;
+
+            if (callback !== undefined) {
+                callback(response);
+            }
+
+        },
+        function(error) {
+            makeCallResponse.errorMessage = error;
+
+            if (onError !== undefined) {
+                onError(error);
+            }
+        });
+
+    if (makeCallResponse.errorMessage !== "") { //The code errored out
+        throw Error(makeCallResponse.errorMessage.error);
+    }
+
+    var response = JSON.parse(makeCallResponse.parentResponse.body)
+    response.isSuccessful = (response.resultCode === ResponseMessages.Success);
+    return response;
+};
+
+/**
+ * A container for objects
+ */
+class MakeCallResponse {
+
+    constructor() {
+        this._errorMessage = "";
+    }
+
+    set parentResponse(parentResponse) {
+        this._parentResponse = parentResponse;
+    }
+
+    set errorMessage(errorMessage) {
+        this._errorMessage = errorMessage;
+    }
+
+    get parentResponse() {
+        return this._parentResponse;
+    }
+
+    get errorMessage() {
+        return this._errorMessage;
+    }
+}
+
+/**
  * Create a timeout promise
  * @param {number} ms - The number of milliseconds to wait 
  */
@@ -118,5 +179,6 @@ module.exports = {
     FileList: FileList,
     Chars: Chars,
     Debug: Debug,
-    timeout: timeout
+    timeout: timeout,
+    makeCall: makeCall
 }
