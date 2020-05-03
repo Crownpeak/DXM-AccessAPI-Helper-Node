@@ -69,6 +69,24 @@ class AccessAsset {
     }
 
     /**
+     * Create a new project
+     * @param {AssetCreateProjectRequest} assetCreateProjectRequest - The request containing all information needed to create a new project
+     */
+    async createProject(assetCreateProjectRequest) {
+        var response = await Util.makeCall(this._api, "Asset/CreateProject", assetCreateProjectRequest.toJson());
+        return response;
+    }
+
+    /**
+     * Create a new site root
+     * @param {AssetCreateSiteRootRequest} assetCreateSiteRootRequest - The request containing all information needed to create a new site root
+     */
+    async createSiteRoot(assetCreateSiteRootRequest) {
+        var response = await Util.makeCall(this._api, "Asset/CreateSiteRoot", assetCreateSiteRootRequest.toJson());
+        return response;
+    }
+
+    /**
      * Delete an asset with the specified ID
      * @param {number|string} id - The id of the asset to delete from the cms 
      */
@@ -216,6 +234,8 @@ class AccessAsset {
     RenameRequest = AssetRenameRequest;
     AttachRequest = AssetAttachRequest;
     DownloadPrepareRequest = DownloadAssetsPrepareRequest;
+    CreateProjectRequest = AssetCreateProjectRequest;
+    CreateSiteRootRequest = AssetCreateSiteRootRequest;
 }
 
 /**
@@ -599,7 +619,7 @@ class AssetCreateRequest {
      * @param {number} devTemplateLanguage - The language of the developer template
      * @param {number} templateId - The id of the template if desired
      * @param {number} workflowId - The desired workfow of the asset
-     * @param {number} subtype - (Look it up)
+     * @param {number} subtype - The subtype of the asset
      */
     constructor(newName, destinationFolderId, modelId, type, devTemplateLanguage, templateId, workflowId, subtype = null) {
         this.newName = newName;
@@ -927,6 +947,159 @@ class DownloadAssetsPrepareRequest {
     toJson(){
         return {
             "AssetIds": this._assetIds
+        }
+    }
+}
+
+/**
+ * 
+ */
+class AssetCreateProjectRequest {
+
+    /**
+     * Create a new request to create a project
+     * @param {string} newName - The name of the new project
+     * @param {number} destinationFolderId - The folder to put the project into
+     * @param {string} libraryName - The name of the library folder in the project
+     * @param {boolean} installComponentLibrary - Whether to install the Component Libary or not
+     * @param {string} componentLibraryVersion - The version of the Component Library to install
+     * @param {boolean} rebuildSite - Whether to rebuild the project after installation
+     */
+    constructor(newName, destinationFolderId, libraryName, installComponentLibrary, componentLibraryVersion, rebuildSite) {
+        this.newName = newName;
+        this.destinationFolderId = destinationFolderId;
+        this._libraryName = libraryName;
+        this._installCL = installComponentLibrary;
+        this._versionCL = componentLibraryVersion;
+        this._rebuildSite = rebuildSite;
+    }
+
+    /**
+     * @param {string} newName - The name of the new site root
+     */
+    set newName(newName) {
+        this._newName = newName;
+    }
+
+    /**
+     * @param {number} destinationFolderId -The Destination folder to place it in
+     */
+    set destinationFolderId(destinationFolderId) {
+        this._destinationFolderId = destinationFolderId;
+    }
+
+    /**
+     * @param {string} libraryName - The name of the new site root
+     */
+    set libraryName(libraryName) {
+        this._libraryName = libraryName;
+    }
+
+    /**
+     * @param {boolean} installCL - Whether to install the Component Library
+     */
+    set installComponentLibrary(installCL) {
+        this._installCL = installCL;
+    }
+
+    /**
+     * @param {string} versionCL - The version of the Component Library to use
+     */
+    set componentLibraryVersion(versionCL) {
+        this._versionCL = versionCL;
+    }
+
+    /**
+     * @param {boolean} rebuildSite - Whether to rebuild the Site
+     */
+    set rebuildSite(rebuildSite) {
+        this._rebuildSite = rebuildSite;
+    }
+
+    /**
+     * Return the object as a json
+     */
+    toJson() {
+        return {
+            "destinationFolderId": this._destinationFolderId,
+            "newName": this._newName,
+            "libraryName": this._libraryName,
+            "installComponentLibrary": this._installCL,
+            "componentLibraryVersion": this._versionCL,
+            "rebuildSite": this._rebuildSite,
+            "installSamples": false,
+            "confirmed": false
+        }
+    }
+}
+
+/**
+ * 
+ */
+class AssetCreateSiteRootRequest {
+
+    /**
+     * Create a new request to create a site root
+     * @param {string} newName - The name of the new site root
+     * @param {number} destinationFolderId - The folder to put the site root into
+     * @param {boolean} installCL - Whether to install the Component Libary or not
+     * @param {boolean} rebuildCL - Whether to rebuild the Component Library after installation
+     * @param {string} versionCL - The version of the Component Library to install
+     */
+    constructor(newName, destinationFolderId, installCL, rebuildCL, versionCL) {
+        this.newName = newName;
+        this.destinationFolderId = destinationFolderId;
+        this._installCL = installCL;
+        this._rebuildCL = rebuildCL;
+        this._versionCL = versionCL;
+    }
+
+    /**
+     * @param {string} newName - The name of the new site root
+     */
+    set newName(newName) {
+        this._newName = newName;
+    }
+
+    /**
+     * @param {number} destinationFolderId -The Destination folder to place it in
+     */
+    set destinationFolderId(destinationFolderId) {
+        this._destinationFolderId = destinationFolderId;
+    }
+
+    /**
+     * @param {boolean} installCL - Whether to install the Component Library
+     */
+    set installComponentLibrary(installCL) {
+        this._installCL = installCL;
+    }
+
+    /**
+     * @param {boolean} rebuildCL - Whether to rebuild the Component Library
+     */
+    set rebuildComponentLibrary(rebuildCL) {
+        this._rebuildCL = rebuildCL;
+    }
+
+    /**
+     * @param {string} versionCL - The version of the Component Library to use
+     */
+    set versionComponentLibrary(versionCL) {
+        this._versionCL = versionCL;
+    }
+
+    /**
+     * Return the object as a json
+     */
+    toJson() {
+        return {
+            "destinationFolderId": this._destinationFolderId,
+            "newName": this._newName,
+            "installCL": this._installCL,
+            "rebuildCL": this._rebuildCL,
+            "versionCL": this._versionCL,
+            "installSamples": false
         }
     }
 }

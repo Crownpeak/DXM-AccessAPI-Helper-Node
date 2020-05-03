@@ -6,6 +6,21 @@ const AssetType = {
     Connector: 10
 }
 
+const AssetSubType = {
+    None: 0,
+    DeveloperTemplate: 1,
+    TemplateFile: 17,
+    Project: 32,
+    Library: 64,
+    SiteRoot: 128,
+    TemplateFolder: 256,
+    Template: 512,
+    Workflow: 1024,
+    State: 2048,
+    ModelFolder: 4096,
+    ComponentFramework: 8192
+}
+
 const OrderType = {
     Ascending: 0,
     Descending: 1,
@@ -168,6 +183,7 @@ function timeout(ms) {
 
 module.exports = {
     AssetType: AssetType,
+    AssetSubType: AssetSubType,
     ResponseMessages: ResponseMessages,
     IsValidJSONString: IsValidJSONString,
     StatusCode: StatusCode,

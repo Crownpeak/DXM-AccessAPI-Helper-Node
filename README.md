@@ -52,7 +52,7 @@ const request = new crownpeak.Asset.CreateRequest(
     devTemplateLanguage,
     templateId,
     workflowId,
-    subtype
+    subtype // see crownpeak.Util.AssetSubType
 );
 ```
 
@@ -128,9 +128,9 @@ const request = new crownpeak.Asset.CreateRequest(
 let response = await crownpeak.Asset.createAsset(request);
 ```
 
-#### CreateFolderWithModel
+#### Create a folder with a model
 
-To create an asset, use the ```createFolderWithModel``` function, passing in an instance of the ```Asset.CreateFolderWithModelRequest``` class:
+To create a folder with a model, use the ```createFolderWithModel``` function, passing in an instance of the ```Asset.CreateFolderWithModelRequest``` class:
 
 ```javascript
 const request = new crownpeak.Asset.CreateFolderWithModelRequest(
@@ -141,7 +141,40 @@ const request = new crownpeak.Asset.CreateFolderWithModelRequest(
 let response = await crownpeak.Asset.createFolderWithModel(request);
 ```
 
-#### DownloadAsBuffer
+#### Create a project
+
+To create a project, use the ```createProject``` function, passing in an instance of the ```Asset.CreateProjectRequest``` class:
+
+```javascript
+const request = new crownpeak.Asset.CreateProjectRequest(
+    name, 
+    destinationFolderId,
+    libraryName,              // optional
+    installComponentLibrary,
+    componentLibraryVersion,  // "2.1"
+    rebuildSite
+);
+let response = await crownpeak.Asset.createProject(request);
+```
+
+#### Create a site root
+
+To create a project, use the ```createSiteRoot``` function, passing in an instance of the ```Asset.CreateSiteRootRequest``` class:
+
+```javascript
+const request = new crownpeak.Asset.CreateSiteRootRequest(
+    name, 
+    destinationFolderId,
+    installCL,
+    rebuildCL,
+    versionCL            // "2.1"
+);
+let response = await crownpeak.Asset.createSiteRoot(request);
+```
+
+Note that a site root cannot be created as a descendant of another site root.
+
+#### Download an asset as a Buffer
 
 To download an asset into a Buffer, use the ```downloadAsBuffer``` function, passing in an instance of the ```Asset.DownloadPrepareRequest``` class:
 
@@ -152,7 +185,7 @@ const request = new crownpeak.Asset.DownloadPrepareRequest(
 let response = await crownpeak.Asset.downloadAsBuffer(request);
 ```
 
-#### DownloadAsString
+#### Download an asset as a string
 
 To download an asset into a string, use the ```downloadAsString``` function, passing in an instance of the ```Asset.DownloadPrepareRequest``` class:
 
@@ -171,7 +204,7 @@ To delete an asset, use the ```delete``` function:
 let response = await crownpeak.Asset.delete(assetId);
 ```
 
-#### ExecuteWorkflowCommand
+#### Execute a workflow command
 
 To execute a workflow command on an asset, use the ```executeWorkflowCommand``` function, passing in an instance of the ```Asset.ExecuteWorkflowCommandRequest``` class:
 
@@ -222,9 +255,9 @@ const request = new crownpeak.Asset.MoveRequest(
 let response = await crownpeak.Asset.move(request);
 ```
 
-#### Paged
+#### Paged list of children
 
-To fetch the contents contained within a folder, use the ```paged``` function, passing in an instance of the ```Asset.PagedRequest``` class:
+To fetch the child assets contained within a folder, use the ```paged``` function, passing in an instance of the ```Asset.PagedRequest``` class:
 
 ```javascript
 const request = new crownpeak.Asset.PagedRequest(
@@ -254,7 +287,7 @@ const request = new crownpeak.Asset.PublishRequest(
 let response = await crownpeak.Asset.publish(request);
 ```
 
-#### PublishRefresh
+#### Publish refresh
 
 To refresh the publishing for a folder, use the ```publishRefresh``` function, passing in an instance of the ```Asset.PublishRefreshRequest``` class:
 
@@ -417,7 +450,7 @@ For workflow functions, commonly a ```workflow``` object will also be returned, 
 }
 ```
 
-#### Get List
+#### Get list
 
 To read all workflows contained within the CMS, use the ```getList``` function:
 

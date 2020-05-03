@@ -105,13 +105,13 @@ function createAsset(assetName, api, callback) {
 }
 
 
-async function createAssetAsync(assetName, api, createFolder = false, folderId, workflowId, templateId = 0,modelId = 0) {
+async function createAssetAsync(assetName, api, createFolder = false, folderId, workflowId, templateId = 0,modelId = 0, subType = 0) {
     if (isNaN(folderId)) {
         await ensureTestFolder();
         folderId = testFolder;
     }
     var assetId;
-    var devTemplateLanguage = 0;
+    var devTemplateLanguage = 1;
     var type = api.Util.AssetType.File;
     var loginOptions = await getLoginInfo();
     await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey)
@@ -124,7 +124,7 @@ async function createAssetAsync(assetName, api, createFolder = false, folderId, 
     }
 
     if (!workflowId && workflowId !== 0 && !createFolder) workflowId = loginOptions.workflow;
-    var AssetCreateRequest = new api.Asset.CreateRequest(assetName, folderId, modelId, type, devTemplateLanguage, templateId, workflowId);
+    var AssetCreateRequest = new api.Asset.CreateRequest(assetName, folderId, modelId, type, devTemplateLanguage, templateId, workflowId, subType);
     var response = await api.Asset.create(AssetCreateRequest);
 
     assetId = response.asset.id;
@@ -325,51 +325,6 @@ describe('AssetTests', function() {
             });
         });
     });
-
-    // TODO: make this create what it needs to do its job
-    //Post Input and Post Save
-    // it('should update perform postsave and post input',async function(){
-    //     await ensureTestFolder();
-    //     const api = new crownpeakapi();
-
-    //     var createId = await createAssetAsync("PostTestAsset", API,false,testFolder, 11, postTemplate);
-
-    //     var issue = null;
-    //     var postSave = false;
-    //     var postInput = false;
-    //     try{
-    //         var updateRequest = new api.Asset.UpdateRequest(createId, {
-    //             "body": "test"
-    //         },{},true,true);
-    //         var updateResponse = await api.Asset.update(updateRequest);
-
-    //         var fields = await api.Asset.fields(createId);
-    //         fields = fields.fields;
-    //         for(var i=0;i<fields.length;i++){
-    //             if(fields[i].name ==="postinput"){
-    //                 postInput = fields[i].value
-
-    //             }
-
-    //             if(fields[i].name === "postsave"){
-    //                 postSave = fields[i].value
-
-    //             }
-    //         };
-
-    //         assert(postInput == "saved", "Post Input did not run successfully");
-    //         assert(postSave == "saved", "PostSave did not run successfully");
-
-    //     }catch(ex){
-    //         issue = ex;
-    //     }
-
-
-    //     await api.Asset.delete(createId);
-    //     if (issue !== null) {
-    //         throw issue;
-    //     }
-    // });
 
     it('should remove a value from the fields of an asset', function(done) {
         const api = new crownpeakapi();
@@ -638,6 +593,111 @@ describe('AssetTests', function() {
         if (issue !== null) {
             throw issue;
         }
+    });
+
+    it("Should create a site root", async function() {
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        var createSiteRootResponse = await api.Asset.createSiteRoot(new api.Asset.CreateSiteRootRequest("TestSiteRoot",0,false,false,""));
+        try{
+            var existsResponse = await api.Asset.exists(createSiteRootResponse.asset.id);
+            assert(existsResponse.exists, "Site Root was not created successfully")
+        }catch(ex){
+
+        }
+        await api.Asset.delete(createSiteRootResponse.asset.id);
+    });
+
+    it("Should create a project", async function() {
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
+        var createProjectResponse = await api.Asset.createProject(new api.Asset.CreateProjectRequest("TestProject",testFolder,"",false,"",false));
+        try{
+            var existsResponse = await api.Asset.exists(createProjectResponse.asset.id);
+            assert(existsResponse.exists, "Project was not created successfully")
+        }catch(ex){
+
+        }
+        await api.Asset.delete(createProjectResponse.asset.id);
+    });
+
+    this.timeout(20000);
+    it('should update perform post_save and post_input', async function(){
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+        await ensureTestFolder();
+        var createProjectResponse = await api.Asset.createProject(new api.Asset.CreateProjectRequest("TestProjectForPost",testFolder,"",false,"",false));
+        try{
+            var existsResponse = await api.Asset.exists(createProjectResponse.asset.id);
+            assert(existsResponse.exists, "Project was not created successfully")
+        }catch(ex){
+
+        }
+
+        // Get the Templates folder
+        let getTemplatesResponse = await api.Asset.exists(loginOptions.cmsFolder + "TestProjectForPost/Templates");
+        chaiAssert.equal(getTemplatesResponse.isSuccessful, true, "Not able to find Templates folder for project");
+
+        // Create a new template
+        let templateId = await createAssetAsync("TestTemplate", api, true, getTemplatesResponse.assetId, 0, 0, 0, api.Util.AssetSubType.Template);
+
+        // Create the post_input.aspx file
+        let inputTemplate = "<%@ Page Language=\"C#\" Inherits=\"CrownPeak.Internal.Debug.InputInit\" %>\r\n" +
+        "<% Input.ShowTextBox(\"Test\", \"test\"); %>\r\n";
+
+        let inputId = await createAssetAsync("input.aspx", api, false, templateId, 0, 0, 0, api.Util.AssetSubType.TemplateFile);
+        chaiAssert.isNumber(inputId, "Not able to create input.aspx");
+
+        let updateResponse = await api.Asset.update(new api.Asset.UpdateRequest(inputId, { "body": inputTemplate }));
+        chaiAssert.equal(updateResponse.isSuccessful, true, "Not able to set input.aspx body");
+
+        // Create the post_input.aspx file
+        let postInputTemplate = "<%@ Page Language=\"C#\" Inherits=\"CrownPeak.Internal.Debug.PostInputInit\" %>\r\n" +
+                                "<% context.InputForm[\"postinput\"] = \"saved\"; %>\r\n";
+
+        let postInputId = await createAssetAsync("post_input.aspx", api, false, templateId, 0, 0, 0, api.Util.AssetSubType.TemplateFile);
+        chaiAssert.isNumber(postInputId, "Not able to create post_input.aspx");
+
+        updateResponse = await api.Asset.update(new api.Asset.UpdateRequest(postInputId, { "body": postInputTemplate }));
+        chaiAssert.equal(updateResponse.isSuccessful, true, "Not able to set post_input.aspx body");
+
+        // Create the post_save.aspx file
+        let postSaveTemplate = "<%@ Page Language=\"C#\" Inherits=\"CrownPeak.Internal.Debug.PostSaveInit\" %>\r\n" +
+                                "<% asset.SaveContentField(\"postsave\", \"saved\"); %>\r\n";
+
+        let postSaveId = await createAssetAsync("post_save.aspx", api, false, templateId, 0, 0, 0, api.Util.AssetSubType.TemplateFile);
+        chaiAssert.isNumber(postSaveId, "Not able to create post_save.aspx");
+
+        updateResponse = await api.Asset.update(new api.Asset.UpdateRequest(postSaveId, { "body": postSaveTemplate }));
+        chaiAssert.equal(updateResponse.isSuccessful, true, "Not able to set post_save.aspx body");
+
+        // Create an asset using the template
+        let createId = await createAssetAsync("TestPost", api, false, testFolder, 0, templateId, 0);
+        chaiAssert.isNumber(createId, "Not able to create an asset using TestPost template");
+        updateResponse = await api.Asset.update(new api.Asset.UpdateRequest(createId, { "test": "test" }, {}, true, true));
+        chaiAssert.equal(updateResponse.isSuccessful, true, "Not able to update TestPost asset");
+
+        let postInput = postSave = "";
+        var fields = await api.Asset.fields(createId);
+        fields = fields.fields;
+        for(var i=0;i<fields.length;i++){
+            if(fields[i].name ==="postinput"){
+                postInput = fields[i].value;
+            }
+            else if(fields[i].name === "postsave"){
+                postSave = fields[i].value;
+            }
+        };
+
+        assert(postInput == "saved", "post_input.aspx did not run successfully");
+        assert(postSave == "saved", "post_save.aspx did not run successfully");
+
+        await api.Asset.delete(createId);
+        await api.Asset.delete(createProjectResponse.asset.id);
     });
 
 });
