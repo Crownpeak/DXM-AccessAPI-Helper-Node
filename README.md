@@ -35,6 +35,8 @@ crownpeak.login(
 );
 ```
 
+---
+
 ### Asset functions
 
 #### Example
@@ -73,7 +75,7 @@ The response will contain a number of standard properties, plus one or more othe
 
 You should test the ```isSuccessful``` property before attempting to read other properties.
 
-For asset functions, commonly an asset will also be returned, for example:
+For asset functions, commonly an ```asset``` will also be returned, for example:
 
 ```javascript
 {
@@ -335,6 +337,51 @@ const request = new crownpeak.Asset.UploadRequest(
 let response = await crownpeak.Asset.upload(request);
 ```
 
+---
+
+### Report functions
+
+#### Example
+
+All report functions take simple parameters or none at all.
+
+```javascript
+let response = await crownpeak.Report.siteSummary();
+```
+
+The response will contain a number of standard properties, plus one or more others that are specific to the type of request that was made. The standard properties are:
+
+```javascript
+{
+    "resultCode": "conWS_Success", // See crownpeak.Util.ResponseMessages
+    "errorMessage": "",
+    "internalCode": 0,
+    "isSuccessful": true
+}
+```
+
+You should test the ```isSuccessful``` property before attempting to read other properties.
+
+For report functions, commonly a ```reportData``` object will also be returned, for example:
+
+```javascript
+{
+    "reportData": {
+        // [...]
+    }
+}
+```
+
+#### Site Summary
+
+To read a site summary report from the CMS, use the ```siteSummary``` function:
+
+```javascript
+let response = await crownpeak.Report.siteSummary();
+```
+
+---
+
 ### Workflow functions
 
 #### Example
@@ -358,7 +405,7 @@ The response will contain a number of standard properties, plus one or more othe
 
 You should test the ```isSuccessful``` property before attempting to read other properties.
 
-For asset functions, commonly a workflow object will also be returned, for example:
+For workflow functions, commonly a ```workflow``` object will also be returned, for example:
 
 ```javascript
 {
@@ -372,7 +419,7 @@ For asset functions, commonly a workflow object will also be returned, for examp
 
 #### Get List
 
-To read of all workflows contained within the CMS, use the ```getList``` function:
+To read all workflows contained within the CMS, use the ```getList``` function:
 
 ```javascript
 let response = await crownpeak.Workflow.getList();

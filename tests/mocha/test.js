@@ -94,7 +94,7 @@ function createAsset(assetName, api, callback) {
         getLoginInfo().then(function(loginOptions) {
             api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey).then(function(response) {
                 var assetCreateRequest = new api.Asset.CreateRequest(assetName, testFolder, 0, api.Util.AssetType.File, 0, 0, 0);
-                api.Asset.createAsset(assetCreateRequest)
+                api.Asset.create(assetCreateRequest)
                     .then(function(response) {
                         callback(response.asset.id, response)
                     });
@@ -125,7 +125,7 @@ async function createAssetAsync(assetName, api, createFolder = false, folderId, 
 
     if (!workflowId && workflowId !== 0 && !createFolder) workflowId = loginOptions.workflow;
     var AssetCreateRequest = new api.Asset.CreateRequest(assetName, folderId, modelId, type, devTemplateLanguage, templateId, workflowId);
-    var response = await api.Asset.createAsset(AssetCreateRequest);
+    var response = await api.Asset.create(AssetCreateRequest);
 
     assetId = response.asset.id;
     return assetId;
@@ -216,7 +216,7 @@ describe('AssetTests', function() {
                 await ensureTestFolder();
                 var assetCreateRequest = new api.Asset.CreateRequest("CreateAsset", testFolder, 801, api.Util.AssetType.File);
 
-                api.Asset.createAsset(assetCreateRequest).then(function(response) {
+                api.Asset.create(assetCreateRequest).then(function(response) {
                     var assetId = response.asset.id;
                     api.Asset.exists(assetId).then(function(response) {
                         assert.equal(response.exists, true);
@@ -246,8 +246,8 @@ describe('AssetTests', function() {
                 await ensureTestFolder();
                 var assetCreateRequest = new api.Asset.CreateRequest("test", testFolder, 801, api.Util.AssetType.File);
 
-                api.Asset.createAsset(assetCreateRequest).then(function(response) {
-                    api.Asset.createAsset(assetCreateRequest).catch(function(err) {
+                api.Asset.create(assetCreateRequest).then(function(response) {
+                    api.Asset.create(assetCreateRequest).catch(function(err) {
                         var error = JSON.parse(err.message);
                         assert.equal(error.resultCode, api.Util.ResponseMessages.AssetAlreadyExists);
                         api.Asset.delete(response.asset.id)
@@ -268,7 +268,7 @@ describe('AssetTests', function() {
         var loginOptions = await getLoginInfo();
         await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
         await ensureTestFolder();
-        var createResponse = await api.Asset.createAsset(new api.Asset.CreateRequest("CreateBranch", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
+        var createResponse = await api.Asset.create(new api.Asset.CreateRequest("CreateBranch", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
         var branchResponse = await api.Asset.branch(createResponse.asset.id);
         var existsResponse = await api.Asset.exists(createResponse.asset.id);
         if (existsResponse.exists) {
@@ -642,6 +642,17 @@ describe('AssetTests', function() {
 
 });
 
+describe("Report", function() {
+    this.timeout(10000);
+    it("Should get a site summary report", async function() {
+        const api = await loginAsync();
+        var reportResponse = await api.Report.siteSummary();
+        chaiAssert.equal(reportResponse.isSuccessful, true, "Was not able to run site summary report");
+        chaiAssert.isDefined(reportResponse.reportData, "Was not able to read site summary data");
+        chaiAssert.notEqual(reportResponse.reportData.totalSites, 0, "Was not able to read site summary data");
+    });
+});
+
 describe("Workflow", function() {
     this.timeout(10000);
     it("Should get a list of workflows", async function() {
@@ -719,7 +730,7 @@ describe("AssetExists", function() {
         var loginOptions = await getLoginInfo();
         await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
         await ensureTestFolder();
-        var createResponse = await api.Asset.createAsset(new api.Asset.CreateRequest("CheckMultipleAssetsOnPath", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
+        var createResponse = await api.Asset.create(new api.Asset.CreateRequest("CheckMultipleAssetsOnPath", testFolder, 0, api.Util.AssetType.File, 0, 0, loginOptions.workflow));
         var branchResponse = await api.Asset.branch(createResponse.asset.id);
         var existsResponseId = await api.Asset.exists(createResponse.asset.id);
         var existsResponsePath = await api.Asset.exists(loginOptions.cmsFolder + "CheckMultipleAssetsOnPath");

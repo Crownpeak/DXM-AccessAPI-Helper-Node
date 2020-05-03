@@ -63,7 +63,7 @@ class AccessAsset {
      * Create a new asset
      * @param {AssetCreateRequest} assetCreateRequest - The request containing all information needed to create a new asset 
      */
-    async createAsset(assetCreateRequest) {
+    async create(assetCreateRequest) {
         var response = await Util.makeCall(this._api, "Asset/Create", assetCreateRequest.toJson());
         return response;
     }
@@ -194,14 +194,6 @@ class AccessAsset {
         return await Util.makeCall(this._api,"/Util/Log/",{assetId:assetId,message:message});
     }
 
-    /**
-     * Get the sitesummary for the instance
-     */
-    async siteSummary(){
-        return await Util.makeCall(this._api,"/Report/sitesummary/",{});
-    }
-
-    
     /**
      * Create a new folder that has models
      * @param {CreateFolderWithModelRequest} createFolderWithModelRequest - Object containing information to create a folder with model
