@@ -9,13 +9,17 @@ in developing client-side applications that leverage DXM for content management 
 Installation instructions:
 
 ```javascript
-npm i crownpeaknodeapi --save-dev
+npm i crownpeak-dxm-accessapi-helper --save-dev
+
+or 
+
+yarn add crownpeak-dxm-accessapi-helper
 ```
 
 In your application, make a reference to the API class:
 
 ```javascript
-const CrownpeakApi = require('crownpeaknodeapi');
+const CrownpeakApi = require('crownpeak-dxm-accessapi-helper');
 const crownpeak = new CrownpeakApi();
 ```
 
@@ -30,7 +34,7 @@ crownpeak.login(
     "username",
     "password",
     "cms.crownpeak.net",
-    "cms-instance,
+    "cms-instance",
     "api-key"
 );
 ```
@@ -465,3 +469,14 @@ To read a single workflow, use the ```read``` function:
 ```javascript
 let response = await crownpeak.Workflow.read(workflowId);
 ```
+
+## Credit
+Thanks to:
+
+ * <a href="https://github.com/world93" target="_blank">David Greenberg</a> for the
+original version of the helper;
+ * <a href="https://github.com/richard-lund" target="_blank">Richard Lund</a> for the refactoring;
+ * <a href="https://github.com/ptylr" target="_blank">Paul Taylor</a> for a few edits ;)
+
+## License
+All yours. MIT License. Do what you will, at your own risk!
