@@ -1,7 +1,7 @@
 {
   "name": "crownpeak-dxm-accessapi-helper",
-  "version": "1.1.0",
-  "description": "Crownpeak Digital Experience Management (DXM)Software Development Kit (SDK) for React has been constructed to assist the Single Page App developer in developing client-side applications that leverage DXM for content management purposes.",
+  "version": "1.0.1",
+  "description": "Crownpeak Digital Experience Management (DXM) Access API Helper for Node has been constructed to assist in developing client-side applications that leverage DXM for content management purposes.",
   "repository": "https://github.com/Crownpeak/DXM-AccessAPI-Helper-Node",
   "main": "api.js",
   "author": "Crownpeak Technology, inc.",
