@@ -480,3 +480,10 @@ original version of the helper;
 
 ## License
 All yours. MIT License. Do what you will, at your own risk!
+
+## Version History
+ 
+ | Version       | Date          | Changes                            |
+ | ------------- | --------------|----------------------------------- |
+ | 1.0.2         | 2020APR24     | Initial Release.                   |
+ | 1.0.3         | 2020MAY05     | Adds Component dependencies.       |
