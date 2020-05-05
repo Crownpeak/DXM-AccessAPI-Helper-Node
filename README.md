@@ -1,4 +1,4 @@
-<a href="https://www.crownpeak.com" target="_blank">![Crownpeak Logo](https://github.com/Crownpeak/DXM-AccessAPI-Helper-Node/images/crownpeak-logo.png?raw=true "Crownpeak Logo")</a>
+<a href="https://www.crownpeak.com" target="_blank">![Crownpeak Logo](https://raw.githubusercontent.com/Crownpeak/DXM-AccessAPI-Helper-Node/master/images/crownpeak-logo.png?raw=true "Crownpeak Logo")</a>
 
 # Crownpeak Digital Experience Management (DXM) Access API Helper for Node
 Crownpeak Digital Experience Management (DXM) Access API Helper for Node has been constructed to assist
@@ -474,7 +474,7 @@ let response = await crownpeak.Workflow.read(workflowId);
  
 | Version       | Date          | Changes                            |
 | ------------- | --------------|----------------------------------- |
-| 1.0.1         | 2020MAY05     | Initial Release.                   |
+| 1.0.2         | 2020MAY05     | Initial Release.                   |
 
 ## Credit
 Thanks to:
