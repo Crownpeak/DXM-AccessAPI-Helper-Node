@@ -63,7 +63,7 @@ const request = new crownpeak.Asset.CreateRequest(
 Once created, pass this request to the appropriate function:
 
 ```javascript
-let response = await crownpeak.Asset.createAsset(request);
+let response = await crownpeak.Asset.create(request);
 ```
 
 The response will contain a number of standard properties, plus one or more others that are specific to the type of request that was made. The standard properties are:
@@ -116,7 +116,7 @@ let response = await crownpeak.Asset.branch(assetId);
 
 #### Create
 
-To create an asset, use the ```createAsset``` function, passing in an instance of the ```Asset.CreateRequest``` class:
+To create an asset, use the ```create``` function, passing in an instance of the ```Asset.CreateRequest``` class:
 
 ```javascript
 const request = new crownpeak.Asset.CreateRequest(
@@ -129,7 +129,7 @@ const request = new crownpeak.Asset.CreateRequest(
     workflowId,
     subtype
 );
-let response = await crownpeak.Asset.createAsset(request);
+let response = await crownpeak.Asset.create(request);
 ```
 
 #### Create a folder with a model
