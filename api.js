@@ -1,5 +1,6 @@
 const Asset = require("./common/asset");
 const Report = require("./common/report");
+const Tools = require("./common/tools");
 const Util = require("./common/util");
 const Workflow = require("./common/workflow");
 
@@ -26,7 +27,8 @@ class api {
         this.requestLib = require('request-promise');
         this.webAPIRoot = "/cpt_webservice/accessapi/";
         this.Asset = new Asset(this);
-        this.Report = new Report(this)
+        this.Report = new Report(this);
+        this.Tools = new Tools(this);
         this.Workflow = new Workflow(this);
     }
 
@@ -228,7 +230,8 @@ class api {
     }
 
     Asset = Asset;
-    Report = new Report;
+    Report = Report;
+    Tools = Tools;
     Util = Util;
     Workflow = Workflow;
 }

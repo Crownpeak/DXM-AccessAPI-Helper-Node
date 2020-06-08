@@ -419,6 +419,57 @@ let response = await crownpeak.Report.siteSummary();
 
 ---
 
+### Tools functions
+
+#### Example
+
+All tools functions take simple parameters.
+
+```javascript
+let response = await crownpeak.Tools.recompileLibrary(1234);
+```
+
+The response will contain a number of standard properties, plus one or more others that are specific to the type of request that was made. The standard properties are:
+
+```javascript
+{
+    "resultCode": "conWS_Success", // See crownpeak.Util.ResponseMessages
+    "errorMessage": "",
+    "internalCode": 0,
+    "isSuccessful": true
+}
+```
+
+You should test the ```isSuccessful``` property before attempting to read other properties.
+
+```
+
+#### Recompile Library
+
+To recompile a Library folder, use the ```recompileLibrary``` function:
+
+```javascript
+let response = await crownpeak.Tools.recompileLibrary(folderId);
+```
+
+#### Recompile Project
+
+To recompile a Project, use the ```recompileProject``` function:
+
+```javascript
+let response = await crownpeak.Tools.recompileProject(projectId);
+```
+
+#### Recompile Templates
+
+To recompile the templates in a folder, use the ```recompileTemplates``` function:
+
+```javascript
+let response = await crownpeak.Tools.recompileTemplates(folderId);
+```
+
+---
+
 ### Workflow functions
 
 #### Example
@@ -475,6 +526,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | Version       | Date          | Changes                            |
 | ------------- | --------------|----------------------------------- |
 | 1.0.2         | 2020MAY05     | Initial Release.                   |
+| 1.0.3         | 2020JUN08     | Add recompile* functions from Tools controller. |
 
 ## Credit
 Thanks to:

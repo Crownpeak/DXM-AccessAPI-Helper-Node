@@ -730,6 +730,74 @@ describe("Workflow", function() {
     });
 });
 
+describe("Tools", function() {
+    this.timeout(60000);
+    // TODO: self-contained tests for these
+
+    it("Should recompile a Library folder", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        var toolsResponse = await api.Tools.recompileLibrary(261059);
+        chaiAssert.isTrue(toolsResponse.isSuccessful);
+        chaiAssert.isEmpty(toolsResponse.errorMessage);
+    });
+
+    it("Should fail if the Library cannot be recompiled", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        try {
+            let toolsResponse = await api.Tools.recompileLibrary(261059);
+            chaiAssert.isUndefined(toolsResponse.isSuccessful);
+        } catch (error) {
+            error = JSON.parse(error.message);
+            chaiAssert.equal(error.resultCode, "conWS_CompilerError");
+            chaiAssert.isNotEmpty(error.errorMessage);
+        }
+    });
+
+    it("Should recompile a Project", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        var toolsResponse = await api.Tools.recompileProject(261049);
+        chaiAssert.isTrue(toolsResponse.isSuccessful);
+        chaiAssert.isEmpty(toolsResponse.errorMessage);
+    });
+
+    it("Should fail if the Project cannot be recompiled", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        try {
+            let toolsResponse = await api.Tools.recompileProject(261049);
+            chaiAssert.isUndefined(toolsResponse.isSuccessful);
+        } catch (error) {
+            error = JSON.parse(error.message);
+            chaiAssert.equal(error.resultCode, "conWS_GeneralError");
+            chaiAssert.isNotEmpty(error.errorMessage);
+        }
+    });
+
+    it("Should recompile a Templates folder", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        var toolsResponse = await api.Tools.recompileTemplates(261056);
+        chaiAssert.isTrue(toolsResponse.isSuccessful);
+        chaiAssert.isEmpty(toolsResponse.errorMessage);
+    });
+
+    it("Should fail if the Templates folder cannot be recompiled", async function() {
+        var loginOptions = await getLoginInfo();
+        const api = await loginAsync();
+        try {
+            let toolsResponse = await api.Tools.recompileTemplates(261056);
+            chaiAssert.isUndefined(toolsResponse.isSuccessful);
+        } catch (error) {
+            error = JSON.parse(error.message);
+            chaiAssert.equal(error.resultCode, "conWS_CompilerError");
+            chaiAssert.isNotEmpty(error.errorMessage);
+        }
+    });
+});
+
 describe("AssetsLists", function() {
     this.timeout(20000);
 
