@@ -34,6 +34,10 @@ const VisibilityType = {
     Normal: 0
 }
 
+const TemplateLanguageType = {
+    CSharp: 1
+}
+
 const StatusCode = {
     Timeout: 429
 }
@@ -117,8 +121,8 @@ class Debug {
  * @param {api.api} api - The api to make all calls
  * @param {string} urlPath - The uri path of the request
  * @param {JSON} data - The data being sent in json format
- * @param {function(JSON)} callback - A function to be run on success if desired
- * @param {function(JSON)} onError - A function to run on error
+ * @param {function(JSON)=} callback - A function to be run on success if desired
+ * @param {function(JSON)=} onError - A function to run on error
  */
 const makeCall = async (api, urlPath, data, callback, onError) => {
     var makeCallResponse = new MakeCallResponse();
@@ -184,6 +188,7 @@ function timeout(ms) {
 module.exports = {
     AssetType: AssetType,
     AssetSubType: AssetSubType,
+    TemplateLanguageType: TemplateLanguageType,
     ResponseMessages: ResponseMessages,
     IsValidJSONString: IsValidJSONString,
     StatusCode: StatusCode,
