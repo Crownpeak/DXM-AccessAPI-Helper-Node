@@ -1,5 +1,5 @@
 const Asset = require("./common/asset");
-const Asset = require("./common/assetproperties");
+const AssetProperties = require("./common/assetproperties");
 const Report = require("./common/report");
 const Tools = require("./common/tools");
 const Util = require("./common/util");

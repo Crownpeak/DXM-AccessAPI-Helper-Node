@@ -41,11 +41,4 @@ class AccessAssetProperties {
 
 }
 
-class SetTemplateRequest {
-    constructor (assetIds, templateId, isDeveloperTemplate=true, templateLanguage=0) {
-        this._assetIds = assetIds;
-        this._templateId = templateId,
-    }
-}
-
 module.exports = AccessAssetProperties;
