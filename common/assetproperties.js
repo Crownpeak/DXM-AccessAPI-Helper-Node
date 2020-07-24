@@ -17,7 +17,7 @@ class AccessAssetProperties {
      * @param {boolean=} isDeveloperTemplate                 use the special purpose developer template (defaults to false)
      * @param {Util.TemplateLanguageType=} templateLanguage  legacy support to specify the template language (defaults to TemplateLanguageType.CSharp)
      */
-    async setTemplate(assetIds, templateId, isDeveloperTemplate=false, templateLanguage=0) {
+    async setTemplate(assetIds, templateId, isDeveloperTemplate=false, templateLanguage=Util.TemplateLanguageType.CSharp) {
         let request = {
             "assetIds" : assetIds,
             "templateId": templateId,

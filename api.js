@@ -1,5 +1,5 @@
 const Asset = require("./common/asset");
-const AssetProperties = require("./common/assetproperties");
+const AssetProperties = require('./common/assetproperties');
 const Report = require("./common/report");
 const Tools = require("./common/tools");
 const Util = require("./common/util");
@@ -28,6 +28,7 @@ class api {
         this.requestLib = require('request-promise');
         this.webAPIRoot = "/cpt_webservice/accessapi/";
         this.Asset = new Asset(this);
+        this.AssetProperties = new AssetProperties(this);
         this.Report = new Report(this);
         this.Tools = new Tools(this);
         this.Workflow = new Workflow(this);
