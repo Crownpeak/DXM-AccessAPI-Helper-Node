@@ -376,6 +376,56 @@ let response = await crownpeak.Asset.upload(request);
 
 ---
 
+### Asset Properties functions
+
+#### Example
+
+All asset properties functions take simple parameters or none at all.
+
+```javascript
+let response = await crownpeak.AssetProperties.setWorkflow([123], 0);
+```
+
+The response will contain a number of standard properties, plus one or more others that are specific to the type of request that was made. The standard properties are:
+
+```javascript
+{
+    "resultCode": "conWS_Success", // See crownpeak.Util.ResponseMessages
+    "errorMessage": "",
+    "internalCode": 0,
+    "isSuccessful": true
+}
+```
+
+You should test the ```isSuccessful``` property before attempting to read other properties.
+
+For asset properties functions, commonly no other data will be returned.
+
+#### Set Template
+
+To set the template details for one or more assets, use the ```setTemplate``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.setTemplate(
+    [asset_ids ...],     // array of asset ids to set the template for
+    templateId,          // the template id to set for the assets
+    isDeveloperTemplate // true if this is a DeveloperCS template, or false if not
+);
+```
+
+#### Set Workflow
+
+To set the workflow details for one or more assets, use the ```setWorkflow``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.setWorkflow(
+    [asset_ids ...],     // array of asset ids to set the workflow for
+    workflowId           // the workflow id to set for the assets
+);
+```
+
+---
+
 ### Report functions
 
 #### Example
@@ -527,6 +577,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | ------------- | --------------|----------------------------------- |
 | 1.0.2         | 2020MAY05     | Initial Release.                   |
 | 1.0.3         | 2020JUN08     | Add recompile* functions from Tools controller. |
+| next          | 2020JUL28     | Add AssetProperties controller.    |
 
 ## Credit
 Thanks to:
@@ -534,6 +585,7 @@ Thanks to:
 original version of the helper;
 * <a href="https://github.com/richard-lund" target="_blank">Richard Lund</a> for the refactoring;
 * <a href="https://github.com/ptylr" target="_blank">Paul Taylor</a> for a few edits ;)
+* <a href="https://github.com/marcusedwards-cp" target="_blank">Marcus Edwards</a> for the AssetProperties work and tidying up
 
 ## License
 MIT License
