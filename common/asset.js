@@ -783,7 +783,9 @@ class AssetPagedRequest {
             "assetId": this._assetId,
             "assetIdToFindPage": this._assetIdToFindPage,
             "currentPage": this._currentPage,
-            "ignoreFilter": this._ignoreFilter,
+            "filter": {
+                "ignoreFilter": this._ignoreFilter
+            },
             "ignoreSort": this._ignoreSort,
             "orderType": this._orderType,
             "pageSize": this._pageSize,
