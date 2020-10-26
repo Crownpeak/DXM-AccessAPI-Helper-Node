@@ -578,6 +578,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.0.2         | 2020MAY05     | Initial Release.                   |
 | 1.0.3         | 2020JUN08     | Add recompile* functions from Tools controller. |
 | 1.0.4         | 2020JUL28     | Add AssetProperties controller.    |
+| 1.0.5         | 2020OCT26     | Correct ignoreFilter option for asset.paged(). |
 
 ## Credit
 Thanks to:
