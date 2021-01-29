@@ -743,8 +743,9 @@ class AssetPagedRequest {
      * @param {boolean} saveSort - TODO find out
      * @param {string} sortColumn - TODO find out
      * @param {util.VisibilityType} visibilityType - Display Hidden:1, Deleted:2, Or Normal:0 
+     * @param {object} filter - filter options
      */
-    constructor(assetId, assetIdToFindPage, currentPage, ignoreFilter, ignoreSort, orderType, pageSize, saveSort, sortColumn, visibilityType) {
+    constructor(assetId, assetIdToFindPage, currentPage, ignoreFilter, ignoreSort, orderType, pageSize, saveSort, sortColumn, visibilityType, filter) {
         this._assetId = assetId;
         this._assetIdToFindPage = assetIdToFindPage;
         this._currentPage = currentPage;
@@ -755,6 +756,7 @@ class AssetPagedRequest {
         this._saveSort = saveSort;
         this._sortColumn = sortColumn;
         this._visibilityType = visibilityType;
+        this._filter = filter;
     }
 
     set assetId(assetId) {
@@ -787,9 +789,12 @@ class AssetPagedRequest {
     set visibilityType(visibilityType) {
         this._visibilityType = visibilityType;
     }
+    set filter(filter) {
+        this._filter = filter;
+    }
 
     toJson() {
-        return {
+        let result = {
             "assetId": this._assetId,
             "assetIdToFindPage": this._assetIdToFindPage,
             "currentPage": this._currentPage,
@@ -802,7 +807,11 @@ class AssetPagedRequest {
             "saveSort": this._saveSort,
             "sortColumn": this._sortColumn,
             "visibilityType": this._visibilityType
+        };
+        if (this._filter) {
+            result["filter"] = this._filter;
         }
+        return result;
     }
 }
 

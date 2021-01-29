@@ -287,7 +287,8 @@ const request = new crownpeak.Asset.PagedRequest(
     number,            // the number of records to fetch on each page
     saveSort,          // TODO
     sortColumn,        // The column name to sort by
-    visibilityType     // See crownpeak.Util.VisibilityType
+    visibilityType,    // See crownpeak.Util.VisibilityType
+    filter             // A filter object to be used - optional
 );
 let response = await crownpeak.Asset.paged(request);
 ```
