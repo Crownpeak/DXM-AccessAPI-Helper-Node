@@ -12,6 +12,16 @@ class AccessAssetProperties {
     }    
 
     /**
+     * @param {number} assetId      the asset ID to fetch the attachments for
+     */
+    async attachments(assetId) {
+        let request = {
+            "assetId" : assetId
+        };
+        return await Util.makeCall(this._api, "/AssetProperties/Attachments/", request);
+    }
+
+    /**
      * @param {number[]} assetIds                            an array of the asset IDs to associate the given template ID with
      * @param {number} templateId                            the id of the template to associate. This value is ignored if isDeveloperTemplate param is true
      * @param {boolean=} isDeveloperTemplate                 use the special purpose developer template (defaults to false)

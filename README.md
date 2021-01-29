@@ -412,7 +412,15 @@ The response will contain a number of standard properties, plus one or more othe
 
 You should test the ```isSuccessful``` property before attempting to read other properties.
 
-For asset properties functions, commonly no other data will be returned.
+#### Attachments
+
+To get the attachments for an asset, use the ```attachments``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.attachments(
+    asset_id,     // the asset id to fetch the attachments for
+);
+```
 
 #### Set Template
 
