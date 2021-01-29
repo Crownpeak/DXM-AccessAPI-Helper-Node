@@ -145,6 +145,19 @@ const request = new crownpeak.Asset.CreateFolderWithModelRequest(
 let response = await crownpeak.Asset.createFolderWithModel(request);
 ```
 
+#### Create a library reference
+
+To create a library reference, use the ```createLibraryReference``` function, passing in an instance of the ```Asset.CreateLibraryReferenceRequest``` class:
+
+```javascript
+const request = new crownpeak.Asset.CreateLibraryReferenceRequest(
+    name, 
+    destinationFolderId,
+    libraryId
+);
+let response = await crownpeak.Asset.createLibraryReference(request);
+```
+
 #### Create a project
 
 To create a project, use the ```createProject``` function, passing in an instance of the ```Asset.CreateProjectRequest``` class:

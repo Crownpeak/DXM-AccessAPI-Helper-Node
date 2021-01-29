@@ -69,6 +69,15 @@ class AccessAsset {
     }
 
     /**
+     * Create a new library reference
+     * @param {AssetCreateLibraryReferenceRequest} assetCreateLibraryReferenceRequest - The request containing all information needed to create a new library reference
+     */
+    async createLibraryReference(assetCreateLibraryReferenceRequest) {
+        var response = await Util.makeCall(this._api, "Asset/CreateLibraryReference", assetCreateLibraryReferenceRequest.toJson());
+        return response;
+    }
+
+    /**
      * Create a new project
      * @param {AssetCreateProjectRequest} assetCreateProjectRequest - The request containing all information needed to create a new project
      */
@@ -236,6 +245,7 @@ class AccessAsset {
     DownloadPrepareRequest = DownloadAssetsPrepareRequest;
     CreateProjectRequest = AssetCreateProjectRequest;
     CreateSiteRootRequest = AssetCreateSiteRootRequest;
+    CreateLibraryReferenceRequest = AssetCreateLibraryReferenceRequest;
 }
 
 /**
@@ -949,6 +959,56 @@ class DownloadAssetsPrepareRequest {
     toJson(){
         return {
             "AssetIds": this._assetIds
+        }
+    }
+}
+
+/**
+ * 
+ */
+class AssetCreateLibraryReferenceRequest {
+
+    /**
+     * Create a new request to create a library reference
+     * @param {string} newName - The name of the new library reference
+     * @param {number} destinationFolderId - The folder to put the library reference in
+     * @param {string} libraryId - The id of the library folder to refer to
+     */
+    constructor(newName, destinationFolderId, libraryId) {
+        this._newName = newName;
+        this._destinationFolderId = destinationFolderId;
+        this._libraryId = libraryId;
+    }
+
+    /**
+     * @param {string} newName - The name of the new library reference
+     */
+    set newName(newName) {
+        this._newName = newName;
+    }
+
+    /**
+     * @param {number} destinationFolderId -The Destination folder to place the library reference in
+     */
+    set destinationFolderId(destinationFolderId) {
+        this._destinationFolderId = destinationFolderId;
+    }
+
+    /**
+     * @param {string} libraryName - The id of the library folder to refere to
+     */
+    set libraryId(libraryId) {
+        this._libraryId = libraryId;
+    }
+
+    /**
+     * Return the object as a json
+     */
+    toJson() {
+        return {
+            "destinationFolderId": this._destinationFolderId,
+            "newName": this._newName,
+            "libraryId": this._libraryId
         }
     }
 }
