@@ -213,6 +213,22 @@ const request = new crownpeak.Asset.DownloadPrepareRequest(
 let response = await crownpeak.Asset.downloadAsString(request);
 ```
 
+#### Download a file attached to an asset as a Buffer
+
+To download a file attached to an asset into a Buffer, use the ```downloadAttachmentAsBuffer``` function, passing in a string containing the attachment path, which can be found in the ```previewUrl``` property of attachments returned from calls to ```AssetProperties.attachments```:
+
+```javascript
+let response = await crownpeak.Asset.downloadAttachmentAsBuffer(path);
+```
+
+#### Download a file attached to an asset as a string
+
+To download a file attached to an asset into a string, use the ```downloadAttachmentAsString``` function, passing in a string containing the attachment path, which can be found in the ```previewUrl``` property of attachments returned from calls to ```AssetProperties.attachments```:
+
+```javascript
+let response = await crownpeak.Asset.downloadAttachmentAsString(path, optionalEncoding);
+```
+
 #### Delete
 
 To delete an asset, use the ```delete``` function:
@@ -613,7 +629,7 @@ original version of the helper;
 ## License
 MIT License
 
-Copyright (c) 2020 Crownpeak Technology, inc.
+Copyright (c) 2021 Crownpeak Technology, inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

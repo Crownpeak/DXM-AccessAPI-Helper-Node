@@ -540,12 +540,37 @@ describe('AssetTests', function() {
         var content = "iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAMAAABh9kWNAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NEFBRjFFQTU5QkY4MTFFNDk0NTE4MTJCRDI2RkY1RjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NEFBRjFFQTY5QkY4MTFFNDk0NTE4MTJCRDI2RkY1RjAiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0QUFGMUVBMzlCRjgxMUU0OTQ1MTgxMkJEMjZGRjVGMCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0QUFGMUVBNDlCRjgxMUU0OTQ1MTgxMkJEMjZGRjVGMCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pgrzgu4AAAAGUExURf////8AAOta55MAAAAUSURBVHjaYmBgZGBgZAQRDAABBgAAKgAGs/vrsgAAAABJRU5ErkJggg==";
 
         var issue = null;
+        var displayUrl = "";
         try {
             var attachResponse = await api.Asset.attach(new api.Asset.AttachRequest(assetId, content, "tests.png"));
             assert(attachResponse.isSuccessful, "Wasn't able to attach");
             chaiAssert.isNotNull(attachResponse.displayUrl, "Not successfully attached");
+            displayUrl = attachResponse.displayUrl;
         } catch (error) {
             issue = error;
+        }
+
+        if (!issue) {
+            try {
+                var attachmentsResponse = await api.AssetProperties.attachments(assetId);
+                assert(attachmentsResponse.isSuccessful, "Wasn't able to get attachments");
+                assert(attachmentsResponse.attachmentFiles.length === 1, "Wasn't able to read attachment");
+                assert(attachmentsResponse.attachmentFiles[0].previewUrl === displayUrl, "Attachment url did not match");
+            } catch (error) {
+                issue = error;
+            }
+        }
+
+        if (!issue) {
+            try {
+                if (displayUrl) {
+                    var downloadAttachmentResponse = await api.Asset.downloadAttachmentAsBuffer(displayUrl);
+                    var attachmentContent = downloadAttachmentResponse.toString("base64");
+                    assert(attachmentContent === content, "Attachment content did not match");
+                }
+            } catch (error) {
+                issue = error;
+            }
         }
 
         await api.Asset.delete(assetId);

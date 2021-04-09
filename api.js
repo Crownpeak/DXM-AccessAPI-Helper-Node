@@ -169,6 +169,57 @@ class api {
         }
     }
 
+    /**
+     *
+     * @param {string} urlPath - The path to call from the url
+     * @param {function(object)} callback - function to run on success
+     * @param {function(object)=} onError - function to run on error
+     */
+    async getCmsRequest(urlPath, callback, onError) {
+        var currentAPI = this;
+        var attempt = 0;
+
+        if (urlPath.startsWith("/")) {
+            urlPath = urlPath.substring(1, urlPath.length);
+        }
+
+        const options = {
+            url: "https://" + this.host + "/" + urlPath, //URL of the instance
+            headers: {},
+            resolveWithFullResponse: true,
+            method: "GET",
+            encoding: null
+        }
+
+        if (this._isAuthenticated) {
+            options.headers.cookie = this.cookie;
+        }
+        try {
+            var response = await this.requestLib.get(options);
+            callback(response);
+        } catch (error) {
+            var timeoutWait = Util.InitialTimeoutWait;
+
+            if (error !== undefined && error["statusCode"] == Util.StatusCode.Timeout && attempt < 3) {
+                attempt++;
+                /*If error is a timeout, then retry either after the given retry amount in Retry-After isn't set,
+                otherwise use the time given  */
+                if (error.response !== undefined && error.response.headers !== undefined && error.response.headers["retry-after"] !== undefined) {
+                    var retryAfter = parseInt(error.response.headers["retry-after"], 10);
+                    if (retryAfter != "NaN") {
+                        timeoutWait = retryAfter * 1000;
+                    }
+                }
+                await Util.timeout(timeoutWait);
+                await currentAPI.getCmsRequest(urlPath, callback, onError);
+            } else {
+                if (onError !== undefined) {
+                    onError(error);
+                }
+
+            }
+        }
+    }
 
 
     /**

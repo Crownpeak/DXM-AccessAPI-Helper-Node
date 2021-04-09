@@ -51,6 +51,24 @@ class AccessAsset {
     }
 
     /**
+     * Download an attached file as a string
+     * @param {string} path - string containing path to download 
+     * @param {string=} encoding - string containing desired encoding (default "utf8")
+     */
+    async downloadAttachmentAsString(path, encoding) {
+        var buffer = await Util.makeCmsCall(this._api, path);
+        return buffer.toString(encoding || "utf8");
+    }
+
+     /**
+     * Download an attached file as a buffer
+     * @param {string} path - string containing path to download 
+     */
+    async downloadAttachmentAsBuffer(path) {
+        return await Util.makeCmsCall(this._api, path);
+    }
+
+    /**
      * Branch an asset. Asset will be in the draft state
      * @param {number} id - The id of the asset to branch 
      */
