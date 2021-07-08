@@ -241,6 +241,16 @@ class AccessAsset {
         var response = await Util.makeCall(this._api, "/Asset/Update/", assetUpdateRequest.toJson());
         return response;
     }
+
+    /**
+     * Update the body of a code asset (e.g. template or library class)
+     * @param {AssetUpdatePluginBodyRequest} assetUpdatePluginBodyRequest 
+     */
+     async updatePluginBody(assetUpdatePluginBodyRequest) {
+        var response = await Util.makeCall(this._api, "/Asset/UpdatePluginBody/", assetUpdatePluginBodyRequest.toJson());
+        return response;
+    }
+
     /**
      * Upload a binary file to the cms
      * @param {AssetUploadRequest} assetUploadRequest - The request containing the information on where to upload
@@ -270,12 +280,14 @@ class AccessAsset {
     CreateRequest = AssetCreateRequest;
     ExistsRequest = AssetExistsRequest;
     UpdateRequest = AssetUpdateRequest;
+    UpdatePluginBodyRequest = AssetUpdatePluginBodyRequest;
     UploadRequest = AssetUploadRequest;
     PagedRequest = AssetPagedRequest;
     RouteRequest = AssetRouteRequest;
     CreateFolderWithModelRequest = AssetCreateFolderWithModelRequest;
     ExecuteWorkflowCommandRequest = ExecuteWorkflowCommandRequest;
     MoveRequest = AssetMoveRequest;
+    PathByIdRequest = AssetPathByIdRequest;
     PublishRequest = AssetPublishRequest;
     PublishRefreshRequest = AssetPublishRefreshRequest;
     RenameRequest = AssetRenameRequest;
@@ -421,6 +433,44 @@ class AssetPublishRequest {
 }
 
 /**
+ * Create a request to retrieve an asset's path based on an id
+ */
+class AssetPathByIdRequest {
+    /**
+     * Create a request to retrieve an asset's path based on an its id
+     * @param {number} assetId - The asset Id of the asset to retrieve
+     * @param {boolean} includeAssetList - Set true to retrieve a list of all assets making up the path
+     */
+    constructor(assetId, includeAssetList) {
+        this._assetId = assetId;
+        this._includeAssetList = includeAssetList;
+    }
+
+    set assetId(assetId) {
+        this._assetId = assetId;
+    }
+
+    set includeAssetList(value) {
+        this._includeAssetList = value;
+    }
+
+    get assetId() {
+        return this._assetId;
+    }
+
+    get includeAssetList() {
+        return this._includeAssetList;
+    }
+
+    toJson() {
+        return {
+            "assetId": this._assetId,
+            "includeAssetList": this._includeAssetList
+        }
+    }
+}
+
+/**
  * Create a request for a publishing refresh
  */
 class AssetPublishRefreshRequest {
@@ -546,6 +596,42 @@ class AssetUpdateRequest {
             "fieldsToDelete": this._fieldsToDelete,
             "runPostInput":this._runPostInput,
             "runPostSave":this._runPostSave
+        };
+    }
+
+}
+
+/** Class for creating a new UpdatePluginBody Request */
+class AssetUpdatePluginBodyRequest {
+    /**
+     * Create an Update Request
+     * @param {number} assetId - The asset id to update
+     * @param {string} body - The body text to update
+     * @param {boolean} requestCodeAnalysis - Request code analysis after update
+     */
+    constructor(assetId, body, requestCodeAnalysis=false ) {
+        this._assetId = assetId;
+        this._body = body;
+        this._requestCodeAnalysis = requestCodeAnalysis;
+    }
+
+    set assetId(assetId) {
+        this._assetId = assetId;
+    }
+
+    set body(body) {
+        this._body = body;
+    }
+
+    set requestCodeAnalysis(value) {
+        this._requestCodeAnalysis = value;
+    }
+
+    toJson() {
+        return {
+            "assetId": this._assetId,
+            "body": this._body,
+            "requestCodeAnalysis": this._requestCodeAnalysis
         };
     }
 
