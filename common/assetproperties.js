@@ -22,6 +22,29 @@ class AccessAssetProperties {
     }
 
     /**
+     * Retrieve site root details for an asset
+     * @param {number} assetId      the id of the asset you want site root details about
+     */
+    async readSiteRoot(assetId) {
+        let request = {
+            "assetId" : assetId
+        };
+        return await Util.makeCall(this._api, "/AssetProperties/ReadSiteRoot", request);
+    }
+
+    /**
+     * @param {number[]} assetIds                         an array of the asset IDs to associate the given model ID with
+     * @param {number} modelId                            the id of the model to 
+     */
+     async setModel(assetIds, modelId) {
+        let request = {
+            "assetIds" : assetIds,
+            "modelId": modelId
+        };
+        return await Util.makeCall(this._api, "/AssetProperties/SetModel/", request);
+    }
+
+    /**
      * @param {number[]} assetIds                            an array of the asset IDs to associate the given template ID with
      * @param {number} templateId                            the id of the template to associate. This value is ignored if isDeveloperTemplate param is true
      * @param {boolean=} isDeveloperTemplate                 use the special purpose developer template (defaults to false)
