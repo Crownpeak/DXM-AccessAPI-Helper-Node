@@ -174,6 +174,14 @@ class AccessAsset {
     }
 
     /**
+     * Get the path of an asset based on its id
+     * @param {AssetPathByIdRequest} AssetPathByIdRequest - The request containing the id of the asset and whether to fetch an asset list
+     */
+     async pathById(AssetPathByIdRequest) {
+        return await Util.makeCall(this._api, "/Asset/PathById/", AssetPathByIdRequest.toJson());
+    }
+
+    /**
      * Publishes an asset that does not have workflow
      * @param {AssetPublishRequest} AssetPublishRequest 
      */
