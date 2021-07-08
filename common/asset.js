@@ -31,6 +31,18 @@ class AccessAsset {
     async attach(assetAttachRequest){
         return await Util.makeCall(this._api,"/Asset/Attach/",assetAttachRequest.toJson());
     }
+
+    /**
+     * Attach an file to an asset
+     * @param {AssetAttachRequest} assetAttachRequest - The request containing information about what to upload
+     */
+    async attachv2(assetAttachRequest){
+        let response = await Util.makeCall(this._api, "/upload/attachmentprepare", {totalSize: Buffer.from(assetAttachRequest.bytes, "base64").length});
+        const uploadTicket = response.uploadTicket;
+        response = await Util.makeCall(this._api, "/upload/bytes", {uploadTicket, base64: assetAttachRequest.bytes});
+        response = await Util.makeCall(this._api, "/upload/attachmentcomplete", {uploadTicket, assetId: assetAttachRequest.assetId, originalFilename: assetAttachRequest.originalFilename});
+        return response;
+    }
     
     /**
      * 
