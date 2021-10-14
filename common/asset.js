@@ -533,6 +533,9 @@ class AssetExistsRequest {
      * @param {String} assetIdOrPath - The asset ID or Path of the asset to check if it exists
      */
     constructor(assetIdOrPath) {
+        if (assetIdOrPath && assetIdOrPath.replace) {
+            assetIdOrPath = assetIdOrPath.replace(/\/{2,}/g, "/");
+        }
         this.assetIdOrPath = assetIdOrPath;
     }
 
