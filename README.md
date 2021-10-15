@@ -617,6 +617,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.0.3         | 2020JUN08     | Add recompile* functions from Tools controller. |
 | 1.0.4         | 2020JUL28     | Add AssetProperties controller.    |
 | 1.0.5         | 2020OCT26     | Correct ignoreFilter option for asset.paged(). |
+| 1.0.6         | 2021OCT15     | Add Asset.CreateLibraryReference, AssetPropeties.Attachments, AssetProperties.ReadSiteRoot, AssetProperties.SetModel, Asset.DownloadAttachment, Asset.Attachv2, Asset.PathById, Asset.UpdatePluginBody and add filter option for asset.paged(). |
 
 ## Credit
 Thanks to:
