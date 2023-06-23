@@ -145,8 +145,8 @@ const makeCall = async (api, urlPath, data, callback, onError) => {
     if (makeCallResponse.errorMessage !== "") { //The code errored out
         throw Error(makeCallResponse.errorMessage.error);
     }
-
-    var response = JSON.parse(makeCallResponse.parentResponse.body)
+    
+    var response = makeCallResponse.parentResponse;
     response.isSuccessful = (response.resultCode === ResponseMessages.Success);
     return response;
 };
