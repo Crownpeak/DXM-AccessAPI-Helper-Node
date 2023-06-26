@@ -145,13 +145,11 @@ class api {
         try {
             const response2 = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options); 
             const data2 = await response2.json();
-            console.log(data2);
             if (data2.resultCode === Util.ResponseMessages.Success) {
                 var combinedCookieHeader = response2.headers.get('set-cookie');
                 data2.cookie = this.setCookie.splitCookiesString(combinedCookieHeader);  
                 //data2.cookie = response2.headers.getSetCookie(); 
             }
-
            callback(data2);
         } catch (error) {
             var timeoutWait = Util.InitialTimeoutWait;
