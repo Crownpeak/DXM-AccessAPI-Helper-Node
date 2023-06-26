@@ -10,11 +10,7 @@
     "test": "mocha tests/mocha/*.js --timeout 25000"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "grunt": "^1.6.1",
-    "grunt-contrib-clean": "^2.0.1",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-nodeunit": "^1.0.0"
+    "chai": "^4.2.0"
   },
   "dependencies": {
     "istextorbinary": "^6.0.0",
