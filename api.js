@@ -123,7 +123,7 @@ class api {
         if (urlPath.startsWith("/")) {
             urlPath = urlPath.substring(1, urlPath.length);
         }
-
+        
         const options = {
             url: "https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, //URL of the instance
             headers: {
@@ -201,9 +201,8 @@ class api {
         }
         try {
             //var response = await this.requestLib.get(options);
-            const response2 = await fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options); 
+            const response2 = await this.fetch("https://" + this.host + "/" + urlPath, options); 
             const data2 = await response2.json();
-            //callback(response);
             callback(data2);
         } catch (error) {
             var timeoutWait = Util.InitialTimeoutWait;
