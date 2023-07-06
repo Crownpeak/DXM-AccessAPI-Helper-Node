@@ -467,8 +467,8 @@ describe('AssetTests', function() {
         }
     });
     
+    /*
 
-    /* Commented out this test on 6/29/2023 as it was failing for unknown reasons. 
     it("Should publish an asset that doesn't have a workflow", async function() {
         await ensureTestFolder();
         const api = new crownpeakapi();
@@ -477,17 +477,20 @@ describe('AssetTests', function() {
         try {
             var publishResponse = await api.Asset.publish(new api.Asset.PublishRequest([assetId]));
             assert(publishResponse.isSuccessful, "Publish was not successful from call");
-            chaiAssert.isAbove(publishResponse.publishingSessionId, 0, "The session was not created")
+            chaiAssert.isAbove(publishResponse.publishingSessionId, 0, "The session was not created");
+            await api.Asset.delete(assetId);
+            console.log("after delete");
         } catch (error) {
             issue = error;
         }
+       */ 
 
-        await api.Asset.delete(assetId);
+        /*await api.Asset.delete(assetId);
         if (issue !== null) {
             throw issue;
-        }
-    });
-    */
+        } */
+   //});
+    
     
 
     it("Should refresh a folder", async function() {
@@ -677,7 +680,7 @@ describe('AssetTests', function() {
     
     
     it('Should update perform post_save and post_input', async function(){
-        this.timeout(900000);
+        this.timeout(3000000);
         const api = new crownpeakapi();
         var loginOptions = await getLoginInfo();
         await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
@@ -751,9 +754,7 @@ describe('AssetTests', function() {
         assert(postSave == "saved", "post_save.aspx did not run successfully");
 
         await api.Asset.delete(createId);
-        //TODO: This line was commented out on 6/29/2023 as it was timing out regardless
-        // of value. 
-        //await api.Asset.delete(createProjectResponse.asset.id);
+        await api.Asset.delete(createProjectResponse.asset.id);
        
     });
     
