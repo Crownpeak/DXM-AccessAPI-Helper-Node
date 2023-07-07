@@ -143,14 +143,13 @@ class api {
         }
         
         try {
-            const response2 = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options); 
-            const data2 = await response2.json();
-            if (data2.resultCode === Util.ResponseMessages.Success) {
-                var combinedCookieHeader = response2.headers.get('set-cookie');
-                data2.cookie = this.setCookie.splitCookiesString(combinedCookieHeader);  
-                //data2.cookie = response2.headers.getSetCookie(); 
+            const response = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options); 
+            const data = await response.json();
+            if (data.resultCode === Util.ResponseMessages.Success) {
+                var combinedCookieHeader = response.headers.get('set-cookie');
+                data.cookie = this.setCookie.splitCookiesString(combinedCookieHeader);  
             }
-           callback(data2);
+           callback(data);
         } catch (error) {
             var timeoutWait = Util.InitialTimeoutWait;
             if (error !== undefined && error["statusCode"] == Util.StatusCode.Timeout && attempt < 3) {
@@ -200,10 +199,9 @@ class api {
             options.headers.cookie = this.cookie;
         }
         try {
-            //var response = await this.requestLib.get(options);
-            const response2 = await this.fetch("https://" + this.host + "/" + urlPath, options); 
-            const data2 = await response2.json();
-            callback(data2);
+            const response = await this.fetch("https://" + this.host + "/" + urlPath, options); 
+            const data = await response.json();
+            callback(data);
         } catch (error) {
             var timeoutWait = Util.InitialTimeoutWait;
 
