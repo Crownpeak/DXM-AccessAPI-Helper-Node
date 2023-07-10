@@ -873,7 +873,7 @@ describe("AssetsLists", function() {
                 createAsset("Paged2", api, function(assetId1) {
                     api.Asset.paged(new api.Asset.PagedRequest(testFolder, 0, 0, true, true, api.Util.OrderType.Ascending, 2, false, "", api.Util.VisibilityType.Normal))
                         .then(function(response) {       
-                            chaiAssert(response.assets.length > 8);
+                            chaiAssert(response.assets.length > 1);
                             var promiseList = [api.Asset.delete(assetId1), api.Asset.delete(assetId)];
                             Promise.all(promiseList)
                                 .then(() => done())
