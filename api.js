@@ -2,6 +2,7 @@ const Asset = require("./common/asset");
 const AssetProperties = require('./common/assetproperties');
 const Report = require("./common/report");
 const Tools = require("./common/tools");
+const User = require("./common/user");
 const Util = require("./common/util");
 const Workflow = require("./common/workflow");
 
@@ -29,6 +30,7 @@ class api {
         this.Asset = new Asset(this);
         this.AssetProperties = new AssetProperties(this);
         this.Report = new Report(this);
+        this.User = new User(this);
         this.Tools = new Tools(this);
         this.Workflow = new Workflow(this);
         this.setCookie = require('set-cookie-parser');
@@ -291,6 +293,7 @@ class api {
     AssetProperties = AssetProperties;
     Report = Report;
     Tools = Tools;
+    User = User;
     Util = Util;
     Workflow = Workflow;
 }
