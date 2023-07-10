@@ -140,8 +140,8 @@ class AccessAsset {
      * @param {*} idOrPath = The id or path of the asset to check
      */
     async exists(idOrPath) {
-
-        var response = await Util.makeCall(this._api, "Asset/Exists", new AssetExistsRequest(idOrPath).toJson());
+        
+        var response = await Util.makeCall(this._api, "Asset/Exists", new AssetExistsRequest(idOrPath).toJson());  
         return response;
 
     }
