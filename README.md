@@ -558,6 +558,74 @@ let response = await crownpeak.Tools.recompileTemplates(folderId);
 
 ---
 
+### User functions
+
+#### Example
+
+The ```listUsers``` function takes no paraneters, but the ```createUser``` function
+requires a Request object to be created.
+
+```javascript
+let response = await crownpeak.User.listUsers();
+```
+
+The response will contain a number of standard properties, plus one or more others that are specific to the type of request that was made. The standard properties are:
+
+```javascript
+{
+    "resultCode": "conWS_Success", // See crownpeak.Util.ResponseMessages
+    "errorMessage": "",
+    "internalCode": 0,
+    "isSuccessful": true
+}
+```
+
+You should test the ```isSuccessful``` property before attempting to read other properties.
+
+For user functions, commonly a ```users``` array will also be returned, for example:
+
+```javascript
+{
+    "users": [
+        {
+            "id": 123,
+            "username": "test-user@test.com",
+            "fname": "Test",
+            "lname": "User",
+            "fullName": "Test User",
+            "email": "test-user@test.com",
+            // [...]
+        },
+        // [...]
+    ]
+}
+```
+
+#### Create
+
+To create a user, use the ```createUser``` function, passing in an instance of the ```User.UserCreateRequest``` class:
+
+```javascript
+const request = new crownpeak.User.UserCreateRequest(
+    username, 
+    emailAddress,
+    firstName,
+    lastName,
+    password // defaults to null, which will auto-generate a new password for the new user
+);
+let response = await crownpeak.User.createUser(request);
+```
+
+#### Get list
+
+To read all users contained within the CMS, use the ```listUsers``` function:
+
+```javascript
+let response = await crownpeak.User.listUsers();
+```
+
+---
+
 ### Workflow functions
 
 #### Example
@@ -618,6 +686,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.0.4         | 2020JUL28     | Add AssetProperties controller.    |
 | 1.0.5         | 2020OCT26     | Correct ignoreFilter option for asset.paged(). |
 | 1.0.6         | 2021OCT15     | Add Asset.CreateLibraryReference, AssetPropeties.Attachments, AssetProperties.ReadSiteRoot, AssetProperties.SetModel, Asset.DownloadAttachment, Asset.Attachv2, Asset.PathById, Asset.UpdatePluginBody and add filter option for asset.paged(). |
+| 1.1.0         | 2023-07-10    | Refactor to use node-fetch, and add User controller. |
 
 ## Credit
 Thanks to:
@@ -626,11 +695,12 @@ original version of the helper;
 * <a href="https://github.com/richard-lund" target="_blank">Richard Lund</a> for the refactoring;
 * <a href="https://github.com/ptylr" target="_blank">Paul Taylor</a> for a few edits ;)
 * <a href="https://github.com/marcusedwards-cp" target="_blank">Marcus Edwards</a> for the AssetProperties work and tidying up
+* <a href="https://github.com/btcrownpeak" target="_blank">Brad Thompson</a> for refactoring to use node-fetch and sorting out all the failing unit tests
 
 ## License
 MIT License
 
-Copyright (c) 2021 Crownpeak Technology, inc.
+Copyright (c) 2023 Crownpeak Technology, inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
