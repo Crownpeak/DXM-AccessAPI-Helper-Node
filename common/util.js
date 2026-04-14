@@ -182,6 +182,36 @@ const makeCmsCall = async (api, urlPath, callback, onError) => {
 };
 
 /**
+ * Function for making call to the cms and return the text data async
+ * @param {api.api} api - The api to make all calls
+ * @param {string} urlPath - The uri path of the request
+ * @param {function(any)=} callback - A function to be run on success if desired
+ * @param {function(any)=} onError - A function to run on error
+ */
+const makeCmsCallRaw = async (api, urlPath, callback, onError) => {
+    let errorMessage = "";
+    let responseText = "";
+    await api.getCmsRequestRaw(urlPath, function(response) {
+            responseText = response;
+            if (callback !== undefined) {
+                callback(response);
+            }
+        },
+        function(error) {
+            errorMessage = error;
+
+            if (onError !== undefined) {
+                onError(error);
+            }
+        });
+
+    if (errorMessage !== "") { //The code errored out
+        throw Error(errorMessage.error);
+    }
+    return responseText;
+};
+
+/**
  * A container for objects
  */
 class MakeCallResponse {
@@ -232,5 +262,6 @@ module.exports = {
     Debug: Debug,
     timeout: timeout,
     makeCall: makeCall,
-    makeCmsCall
+    makeCmsCall,
+    makeCmsCallRaw
 }

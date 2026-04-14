@@ -77,7 +77,8 @@ class AccessAsset {
      * @param {string} path - string containing path to download 
      */
     async downloadAttachmentAsBuffer(path) {
-        return await Util.makeCmsCall(this._api, path);
+        const response = await Util.makeCmsCallRaw(this._api, path);
+        return response.buffer();
     }
 
     /**
@@ -275,6 +276,23 @@ class AccessAsset {
      */
     async createFolderWithModel(createFolderWithModelRequest){
         return await Util.makeCall(this._api,"/Asset/CreateFolderWithModel", createFolderWithModelRequest.toJson());
+    }
+
+    /**
+     * View the output for an asset and return its HTML
+     * @param {number} id - The id of the asset you want to view
+     */
+    async viewOutput(id) {
+        const response = await Util.makeCmsCallRaw(this._api,this._api.instance + `/cpt_webservice/accessapi/Render/PreviewHtml/v2/ViewOutput/${id}?renderType=V3_UI&retryErrorScreen=1`);
+        return await response.text();
+    }
+
+    /**
+     * Get the published links for an asset
+     * @param {number} id - The id of the asset you want to get
+     */
+    async getPublishLinks(id) {
+        return await Util.makeCall(this._api,"/Asset/PublishLinks", {assetId:id});
     }
 
     CreateRequest = AssetCreateRequest;
