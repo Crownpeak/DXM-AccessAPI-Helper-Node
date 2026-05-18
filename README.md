@@ -724,6 +724,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.0.5         | 2020OCT26     | Correct ignoreFilter option for asset.paged(). |
 | 1.0.6         | 2021OCT15     | Add Asset.CreateLibraryReference, AssetPropeties.Attachments, AssetProperties.ReadSiteRoot, AssetProperties.SetModel, Asset.DownloadAttachment, Asset.Attachv2, Asset.PathById, Asset.UpdatePluginBody and add filter option for asset.paged(). |
 | 1.1.0         | 2023-07-10    | Refactor to use node-fetch, and add User controller. |
+| 1.2.0         | 2026-05-18    | Add setSession / clearSession for externally-captured sessions; fix multi-cookie handling in postRequest. |
 
 ## Credit
 Thanks to:
