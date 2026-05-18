@@ -39,6 +39,27 @@ crownpeak.login(
 );
 ```
 
+### Re-using an existing session
+
+If you already have session cookies (for example, captured from a browser-driven login), you can pre-populate the helper with ```setSession``` and skip the password POST entirely:
+
+```javascript
+crownpeak.setSession({
+    host: "cms.crownpeak.net",
+    instance: "cms-instance",
+    apiKey: "api-key",
+    cookie: [/* array of "name=value; Path=/; ..." strings, same shape as set-cookie-parser.splitCookiesString output */]
+});
+```
+
+All four fields are required; the call throws if any is missing. Subsequent function calls use the supplied cookie and API key the same way they would after a normal ```login()```.
+
+To discard the stored session:
+
+```javascript
+crownpeak.clearSession();
+```
+
 ---
 
 ### Asset functions

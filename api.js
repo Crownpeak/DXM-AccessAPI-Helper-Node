@@ -55,6 +55,34 @@ class api {
      * @param {string} instance
      * @param {string} apiKey
      */
+    /**
+     * Pre-populate the helper with a session captured externally (e.g. from a
+     * browser-driven login). Skips the password POST entirely. Subsequent calls
+     * use the supplied cookie and x-api-key the same way they would after a
+     * normal login().
+     * @param {object} session
+     * @param {string} session.host
+     * @param {string} session.instance
+     * @param {string} session.apiKey
+     * @param {Array<string>} session.cookie  Array of "name=value; Path=/; ..." strings,
+     *                                        same shape as set-cookie-parser.splitCookiesString output.
+     */
+    setSession({ host, instance, apiKey, cookie }) {
+        if (!host || !instance || !apiKey || !cookie) {
+            throw new Error("setSession requires host, instance, apiKey, and cookie");
+        }
+        this.host = host;
+        this.instance = instance;
+        this.apiKey = apiKey;
+        this.cookie = cookie;
+        this._isAuthenticated = true;
+    }
+
+    clearSession() {
+        this._isAuthenticated = false;
+        this.cookie = undefined;
+    }
+
     async login(username, password, host, instance, apiKey) {
         this.host = host;
         this.instance = instance;
@@ -141,11 +169,16 @@ class api {
         }
 
         if (this._isAuthenticated) {
-            options.headers.cookie = this.cookie;
+            // Format as a proper Cookie request header: "name=value; name=value".
+            // Assigning the raw array would let node-fetch comma-join the elements, which corrupts
+            // every cookie after the first when the response had multiple Set-Cookie headers — the
+            // server-side parser splits on ";" and ends up with names like "Secure,ASPSESSIONID".
+            // Matches what getCmsRequest already does.
+            options.headers.cookie = this.cookie.map(c => c.split(";")[0]).join("; ");
         }
-        
+
         try {
-            const response = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options); 
+            const response = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options);
             const data = await response.json();
             if (data.resultCode === Util.ResponseMessages.Success) {
                 var combinedCookieHeader = response.headers.get('set-cookie');
