@@ -309,6 +309,14 @@ const request = new crownpeak.Asset.PagedRequest(
 let response = await crownpeak.Asset.paged(request);
 ```
 
+#### Preview
+
+To get the preview HTML for an asset, as though running inside DXM, use the ```preview``` function:
+
+```javascript
+let response = await crownpeak.Asset.preview(request);
+```
+
 #### Publish
 
 To publish an asset that is not in workflow, use the ```publish``` function, passing in an instance of the ```Asset.PublishRequest``` class:
@@ -402,6 +410,14 @@ const request = new crownpeak.Asset.UploadRequest(
     workflowId
 );
 let response = await crownpeak.Asset.upload(request);
+```
+
+#### View Output
+
+To get the output HTML for an asset, as though during publishing, use the ```viewOutput``` function:
+
+```javascript
+let response = await crownpeak.Asset.viewOutput(request);
 ```
 
 ---
