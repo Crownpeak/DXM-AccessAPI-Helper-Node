@@ -288,6 +288,15 @@ class AccessAsset {
     }
 
     /**
+     * Preview an asset and return its HTML
+     * @param {number} id - The id of the asset you want to preview
+     */
+    async preview(id) {
+        const response = await Util.makeCmsCallRaw(this._api, this._api.instance + `/cpt_webservice/accessapi/Render/PreviewHtml/v2/${id}?renderType=V3_UI&retryErrorScreen=1`);
+        return await response.text();
+    }
+
+    /**
      * Get the published links for an asset
      * @param {number} id - The id of the asset you want to get
      */
