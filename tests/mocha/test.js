@@ -604,6 +604,52 @@ describe('AssetTests', function() {
    
 
 
+    it("Should list, read and revert versions of an asset", async function() {
+        const api = new crownpeakapi();
+        var assetId = await createAssetAsync("VersionTest", api);
+        var issue = null;
+        try {
+            // Two saves, so there is a version to go back to as well as one to come from.
+            await api.Asset.update(new api.Asset.UpdateRequest(assetId, { "body": "first" }));
+            await api.Asset.update(new api.Asset.UpdateRequest(assetId, { "body": "second" }));
+
+            var versionsResponse = await api.AssetProperties.allVersions(assetId);
+            assert(versionsResponse.isSuccessful, "Wasn't able to list versions");
+            chaiAssert.isAtLeast(versionsResponse.assetVersions.length, 2, "Expected at least two versions");
+            // The last page of history is padded with a versionId of -1; allVersions strips those.
+            chaiAssert.isTrue(versionsResponse.assetVersions.every(v => v.versionId !== -1), "Sentinel version was not filtered out");
+
+            // Oldest version first; the CMS returns newest first.
+            var ordered = versionsResponse.assetVersions.slice().sort((a, b) => a.versionId - b.versionId);
+            var firstVersionId = ordered[0].versionId;
+
+            var contentResponse = await api.AssetProperties.versionContent(assetId, firstVersionId);
+            assert(contentResponse.isSuccessful, "Wasn't able to read version content");
+            chaiAssert.isArray(contentResponse.content, "Version content was not returned");
+
+            // An unknown version id is silently answered with the asset's *current* content by the
+            // CMS, so the helper has to reject it itself rather than pass it on.
+            var badResponse = await api.AssetProperties.versionContent(assetId, -99);
+            chaiAssert.isFalse(badResponse.isSuccessful, "Unknown version id was not rejected");
+
+            var revertResponse = await api.AssetProperties.revertToVersion(assetId, firstVersionId);
+            assert(revertResponse.isSuccessful, "Wasn't able to revert to version");
+
+            // Reverting appends a version rather than rewriting history.
+            var afterResponse = await api.AssetProperties.allVersions(assetId);
+            assert(afterResponse.isSuccessful, "Wasn't able to list versions after revert");
+            chaiAssert.isAbove(afterResponse.assetVersions.length, versionsResponse.assetVersions.length, "Revert did not add a version");
+        } catch (error) {
+            issue = error;
+        }
+
+        await api.Asset.delete(assetId);
+        if (issue !== null) {
+            throw issue;
+        }
+    });
+
+
     it("Should move an asset through workflow", async function() {
         const api = new crownpeakapi();
         var assetId = await createAssetAsync("WorkflowCommandTest", api);
