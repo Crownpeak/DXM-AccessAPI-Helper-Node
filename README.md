@@ -476,6 +476,66 @@ let response = await crownpeak.AssetProperties.attachments(
 );
 ```
 
+#### Versions
+
+To read a single page of an asset's version history, use the ```versions``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.versions(
+    asset_id,     // the asset id to read the version history of
+    currentPage,  // the page to read - pages are 1-based (optional, defaults to 1)
+    pageSize      // the number of versions per page (optional, defaults to 50)
+);
+```
+
+Three things to know about the underlying endpoint:
+
+* Pages are 1-based. Asking for page 0 returns an empty ```assetVersions``` array with a *successful* result code, which looks exactly like an asset with no history.
+* The last page is padded with a sentinel row whose ```versionId``` is ```-1```. The helper filters those rows out for you.
+* The ```totalCount``` in the response disagrees with the actual number of versions depending on the page size, so don't use it to work out how many pages to ask for. Read until a page comes back with fewer rows than ```pageSize```, or use ```allVersions``` below.
+
+In each row, note that the field is ```modified_On``` (with a capital O), and that ```name``` is the user who made the change, not the name of the asset.
+
+To read the whole history in one call, use the ```allVersions``` function, which pages until the history is exhausted. The response looks like a ```versions``` response with every version in ```assetVersions```, except that the unreliable ```totalCount``` is omitted:
+
+```javascript
+let response = await crownpeak.AssetProperties.allVersions(
+    asset_id,     // the asset id to read the version history of
+    pageSize      // the number of versions to request per call (optional, defaults to 50)
+);
+```
+
+To read the field content of a particular version, use the ```versionContent``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.versionContent(
+    asset_id,     // the asset id to read
+    versionId,    // the version id to read
+    validate      // check the version exists first (optional, defaults to true)
+);
+```
+
+The fields are returned in the ```content``` array, in the same shape as ```Asset.fields```.
+
+Given a ```versionId``` the asset has never had, the CMS returns the asset's *current* content with a successful result code rather than an error. To stop that quietly passing off the wrong data as a version, the helper reads the history first and returns an unsuccessful response if the version isn't in it. Pass ```validate``` as ```false``` to skip that extra round trip when you already know the id is good.
+
+#### Revert To Version
+
+To restore an asset to an earlier version, use the ```revertToVersion``` function:
+
+```javascript
+let response = await crownpeak.AssetProperties.revertToVersion(
+    asset_id,     // the asset id to revert
+    versionId,    // the version id to revert the asset to
+    validate,     // check the version exists first (optional, defaults to true)
+    isConfirmed   // the CMS confirmation flag (optional, defaults to true)
+);
+```
+
+Reverting does not rewrite history - it appends a new version whose content is the old one's - so the content being replaced remains recoverable. The id of the newly created version is returned in ```newVersionId```.
+
+```validate``` works as it does for ```versionContent```, and matters more here, because a bad version id would mean a bad write rather than a bad read. ```isConfirmed``` defaults to ```true```, which performs the revert; the API also accepts ```false```, but what that does has not been verified.
+
 #### Set Template
 
 To set the template details for one or more assets, use the ```setTemplate``` function:
@@ -725,6 +785,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.0.6         | 2021OCT15     | Add Asset.CreateLibraryReference, AssetPropeties.Attachments, AssetProperties.ReadSiteRoot, AssetProperties.SetModel, Asset.DownloadAttachment, Asset.Attachv2, Asset.PathById, Asset.UpdatePluginBody and add filter option for asset.paged(). |
 | 1.1.0         | 2023-07-10    | Refactor to use node-fetch, and add User controller. |
 | 1.2.0         | 2026-05-18    | Add setSession / clearSession for externally-captured sessions; fix multi-cookie handling in postRequest. |
+| 1.3.0         | 2026-09-17    | Add AssetProperties.versions, AssetProperties.allVersions, AssetProperties.versionContent and AssetProperties.revertToVersion. |
 
 ## Credit
 Thanks to:
