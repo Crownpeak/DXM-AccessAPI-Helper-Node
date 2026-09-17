@@ -19,6 +19,14 @@ class Report {
     async siteSummary(){
         return await util.makeCall(this._api,"/Report/sitesummary/",{});
     }
+
+    /**
+     * Get the publishing errors report for the instance.
+     * The response contains an `assetList` array of assets that have failed to publish.
+     */
+    async publishingErrors(){
+        return await util.makeCall(this._api,"/Report/publishingerrors/",{});
+    }
 }
 
 module.exports = Report;
