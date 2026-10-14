@@ -1,4 +1,5 @@
 const Asset = require("./common/asset");
+const Notifications = require("./common/notifications");
 const AssetProperties = require('./common/assetproperties');
 const Report = require("./common/report");
 const Tools = require("./common/tools");
@@ -30,6 +31,7 @@ class api {
         this.Asset = new Asset(this);
         this.AssetProperties = new AssetProperties(this);
         this.Report = new Report(this);
+        this.Notifications = new Notifications(this);
         this.User = new User(this);
         this.Tools = new Tools(this);
         this.Workflow = new Workflow(this);
@@ -375,6 +377,7 @@ class api {
 
     Asset = Asset;
     AssetProperties = AssetProperties;
+    Notifications = Notifications;
     Report = Report;
     Tools = Tools;
     User = User;

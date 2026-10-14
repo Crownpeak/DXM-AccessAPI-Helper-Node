@@ -1,4 +1,5 @@
 const Util = require("./util");
+const Notifications = require("./notifications");
 
 /**
  * An object that contains methods for editing assets in the cms
@@ -245,11 +246,55 @@ class AccessAsset {
 
     /**
      * Update the body of a code asset (e.g. template or library class)
-     * @param {AssetUpdatePluginBodyRequest} assetUpdatePluginBodyRequest 
+     * @param {AssetUpdatePluginBodyRequest} assetUpdatePluginBodyRequest
+     * @param {boolean=} waitForCompilation - When true, wait for the CMS to report the result of the
+     *      compile this save triggers and return it on the response as a `compilation` property:
+     *      { succeeded, message, rawData, serverNumber, timedOut, unavailable, error }. `rawData`
+     *      carries the compiler output when a compile fails. The result arrives over the
+     *      notification socket (see common/notifications.js), which is much quicker than calling a
+     *      recompile endpoint, but it reports "the next compile to finish", not "the compile for
+     *      this asset" - see the notes on Notifications.waitForCompilation. Defaults to false,
+     *      leaving the call as it was.
+     *      Asking for the compile result never affects whether the save happens: if the channel
+     *      cannot be opened, or drops, the asset is still saved and `compilation.unavailable` is
+     *      true with the reason in `compilation.error`.
+     * @param {number=} timeoutMs - How long to wait for that result before giving up and returning
+     *      `compilation.timedOut` (defaults to 30000). A timeout does not mean the save failed.
      */
-     async updatePluginBody(assetUpdatePluginBodyRequest) {
-        var response = await Util.makeCall(this._api, "/Asset/UpdatePluginBody/", assetUpdatePluginBodyRequest.toJson());
-        return response;
+     async updatePluginBody(assetUpdatePluginBodyRequest, waitForCompilation = false, timeoutMs = 30000) {
+        if (!waitForCompilation) {
+            return await Util.makeCall(this._api, "/Asset/UpdatePluginBody/", assetUpdatePluginBodyRequest.toJson());
+        }
+
+        // The CMS compiles after the save returns and reports the result over the notification
+        // socket, so the subscription has to be in place *before* the save is sent; subscribing
+        // afterwards can miss a result that arrived in the meantime (observed as little as 30ms
+        // after the save returned).
+        // A connection of its own, rather than the api.Notifications singleton, so that a caller
+        // using that singleton for their own purposes is unaffected by this one opening and closing.
+        const notifications = new Notifications(this._api);
+        let connectionError = null;
+        try {
+            await notifications.connect();
+        } catch (error) {
+            // Asking to hear about the compile must never cost you the save. If the channel cannot
+            // be opened the save still goes ahead exactly as it would without waitForCompilation,
+            // and the compile result is reported as unavailable rather than as a failure - we did
+            // not learn that the code failed to compile, only that we could not find out.
+            connectionError = error;
+        }
+
+        try {
+            const response = await Util.makeCall(this._api, "/Asset/UpdatePluginBody/", assetUpdatePluginBodyRequest.toJson());
+            if (response.isSuccessful) {
+                response.compilation = connectionError === null
+                    ? await notifications.waitForCompilation(timeoutMs)
+                    : Notifications.compilationResult({ unavailable: true, error: connectionError.message });
+            }
+            return response;
+        } finally {
+            notifications.disconnect();
+        }
     }
 
     /**

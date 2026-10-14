@@ -34,7 +34,11 @@ async function getLoginInfo() {
         "cmsFolder": config.CMS_FOLDER_PATH,
         "model": config.CMS_MODEL_ASSET_ID,
         "workflow": config.CMS_WORKFLOW || 11,
-        "workflowCommand": config.CMS_WORKFLOW_COMMAND || 38
+        "workflowCommand": config.CMS_WORKFLOW_COMMAND || 38,
+        // Optional: the id of an existing Library code file. Only the compile-notification test
+        // uses it, and that test skips itself when it is not set, because there is no generic way
+        // to create an asset whose save triggers a Library compile.
+        "codeAssetId": config.CMS_CODE_ASSET_ID
     };
 
    
@@ -644,6 +648,138 @@ describe('AssetTests', function() {
         }
 
         await api.Asset.delete(assetId);
+        if (issue !== null) {
+            throw issue;
+        }
+    });
+
+
+    it("Should subscribe to notifications and time out cleanly when nothing is compiling", async function() {
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+
+        await api.Notifications.connect();
+        try {
+            assert(api.Notifications.isConnected, "Did not connect to the notification channel");
+            // "private-ui" is the real prefix - a channel without the "ui" is signed by the CMS but
+            // never receives anything.
+            chaiAssert.isTrue(api.Notifications.channel.startsWith("private-ui"), "Unexpected channel prefix");
+            chaiAssert.isTrue(api.Notifications.channel.endsWith(loginOptions.instance), "Channel should end with the instance name");
+
+            // Nothing is being saved, so this must give up rather than hang, and must not claim
+            // either success or failure.
+            var result = await api.Notifications.waitForCompilation(3000);
+            chaiAssert.isTrue(result.timedOut, "Expected the wait to time out");
+            chaiAssert.isNull(result.succeeded, "A timeout must not report a compile verdict");
+        } finally {
+            api.Notifications.disconnect();
+        }
+        chaiAssert.isFalse(api.Notifications.isConnected, "Did not disconnect");
+    });
+
+
+    it("Should report the compile result when saving code with waitForCompilation", async function() {
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        if (!loginOptions.codeAssetId) {
+            // Needs an existing Library code file; set CMS_CODE_ASSET_ID in .env to run this.
+            this.skip();
+        }
+        this.timeout(120000);
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+
+        var assetId = parseInt(loginOptions.codeAssetId, 10);
+        var fieldsResponse = await api.Asset.fields(assetId);
+        var bodyField = (fieldsResponse.fields || []).find(f => f.name === "body");
+        assert(bodyField, "CMS_CODE_ASSET_ID must identify an asset with a body field");
+        var original = bodyField.value;
+
+        var issue = null;
+        try {
+            // Saving the code unchanged still triggers a compile.
+            var clean = await api.Asset.updatePluginBody(new api.Asset.UpdatePluginBodyRequest(assetId, original, false), true);
+            assert(clean.isSuccessful, "Save failed");
+            chaiAssert.isFalse(clean.compilation.timedOut, "No compile result arrived");
+            chaiAssert.isTrue(clean.compilation.succeeded, "Unmodified code should compile: " + clean.compilation.rawData);
+            chaiAssert.isNull(clean.compilation.rawData, "rawData should be null on success");
+
+            // And a deliberate error must come back as a failure carrying the compiler output,
+            // rather than as a successful-looking save.
+            var broken = await api.Asset.updatePluginBody(new api.Asset.UpdatePluginBodyRequest(assetId, original + "\nthis is not valid C#\n", false), true);
+            assert(broken.isSuccessful, "Save of broken code failed");
+            chaiAssert.isFalse(broken.compilation.timedOut, "No compile result arrived for the broken code");
+            chaiAssert.isFalse(broken.compilation.succeeded, "Broken code should not compile");
+            chaiAssert.include(broken.compilation.rawData, "error", "Compiler output should be returned in rawData");
+        } catch (error) {
+            issue = error;
+        }
+
+        // Always put the original code back, so a failure here does not leave the Library broken.
+        var restored = await api.Asset.updatePluginBody(new api.Asset.UpdatePluginBodyRequest(assetId, original, false), true);
+        if (issue === null) {
+            chaiAssert.isTrue(restored.compilation.succeeded || restored.compilation.timedOut, "Library left broken after the test");
+            var afterResponse = await api.Asset.fields(assetId);
+            var afterBody = (afterResponse.fields || []).find(f => f.name === "body");
+            chaiAssert.equal(afterBody.value, original, "Original code was not restored");
+        }
+        if (issue !== null) {
+            throw issue;
+        }
+    });
+
+
+    it("Should still save the code when the notification channel is unusable", async function() {
+        const api = new crownpeakapi();
+        var loginOptions = await getLoginInfo();
+        if (!loginOptions.codeAssetId) {
+            // Needs an existing Library code file; set CMS_CODE_ASSET_ID in .env to run this.
+            this.skip();
+        }
+        this.timeout(120000);
+        await api.login(loginOptions.username, loginOptions.password, loginOptions.host, loginOptions.instance, loginOptions.apikey);
+
+        var assetId = parseInt(loginOptions.codeAssetId, 10);
+        var fieldsResponse = await api.Asset.fields(assetId);
+        var bodyField = (fieldsResponse.fields || []).find(f => f.name === "body");
+        assert(bodyField, "CMS_CODE_ASSET_ID must identify an asset with a body field");
+        var original = bodyField.value;
+
+        // Break the socket connection by pointing the channel subscription at an endpoint that
+        // cannot answer. The save must be completely unaffected by that.
+        var realMakeCall = api.Util.makeCall;
+        api.Util.makeCall = async function(callApi, urlPath, data, callback, onError) {
+            if (urlPath.indexOf("/Sockets/") === 0) {
+                throw new Error("Simulated notification failure");
+            }
+            return await realMakeCall(callApi, urlPath, data, callback, onError);
+        };
+
+        var issue = null;
+        var marker = original + "\n// " + Date.now() + "\n";
+        try {
+            var response = await api.Asset.updatePluginBody(new api.Asset.UpdatePluginBodyRequest(assetId, marker, false), true);
+
+            assert(response.isSuccessful, "The save must still happen when the channel is unusable");
+            chaiAssert.isTrue(response.compilation.unavailable, "Expected the compile result to be reported as unavailable");
+            chaiAssert.isNotNull(response.compilation.error, "Expected a reason for the unavailable result");
+            // Unavailable is not a verdict: we did not learn that the code failed to compile, only
+            // that we could not find out.
+            chaiAssert.isNull(response.compilation.succeeded, "Unavailable must not report a compile verdict");
+            chaiAssert.isFalse(response.compilation.timedOut, "A connection failure is not a timeout");
+
+            api.Util.makeCall = realMakeCall;
+            var afterResponse = await api.Asset.fields(assetId);
+            var afterBody = (afterResponse.fields || []).find(f => f.name === "body");
+            // Compare with line endings normalised on both sides: the CMS stores "\n" as "\r\n",
+            // and the code read back from it already contains "\r\n".
+            chaiAssert.equal(afterBody.value.replace(/\r\n/g, "\n"), marker.replace(/\r\n/g, "\n"), "The code was not actually saved");
+        } catch (error) {
+            issue = error;
+        }
+
+        api.Util.makeCall = realMakeCall;
+        await api.Asset.updatePluginBody(new api.Asset.UpdatePluginBodyRequest(assetId, original, false), true);
         if (issue !== null) {
             throw issue;
         }
