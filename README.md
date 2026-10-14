@@ -418,6 +418,66 @@ const request = new crownpeak.Asset.UpdateRequest(
 let response = await crownpeak.Asset.update(request);
 ```
 
+#### Update Plugin Body
+
+To save the code of a template file or Library class, use the ```updatePluginBody``` function, passing in an instance of the ```Asset.UpdatePluginBodyRequest``` class:
+
+```javascript
+const request = new crownpeak.Asset.UpdatePluginBodyRequest(
+    assetId,
+    body,                // the code to save
+    requestCodeAnalysis
+);
+let response = await crownpeak.Asset.updatePluginBody(request);
+```
+
+The save returns as soon as the CMS has stored the code - typically well under a second - but the **compile it triggers happens afterwards**, and its result is not part of the response. A successful-looking save therefore tells you nothing about whether the code compiled.
+
+To get that result, pass ```waitForCompilation```:
+
+```javascript
+let response = await crownpeak.Asset.updatePluginBody(
+    request,
+    true,       // waitForCompilation (optional, defaults to false)
+    30000       // how long to wait in ms (optional, defaults to 30000)
+);
+
+if (response.isSuccessful) {
+    if (response.compilation.unavailable) {
+        // saved, but the compile result could not be listened for at all
+        console.log(response.compilation.error);
+    } else if (response.compilation.timedOut) {
+        // saved, but no compile result arrived in time
+    } else if (response.compilation.succeeded) {
+        // saved and compiled
+    } else {
+        console.log(response.compilation.rawData); // the compiler's error output
+    }
+}
+```
+
+The ```compilation``` property is only added when you ask for it, so existing code is unaffected:
+
+```javascript
+{
+    "succeeded": false,                 // true, false, or null when no verdict was received
+    "message": "CompilationFailed",     // or "CompilationSucceeded", or null when no verdict
+    "rawData": "Errors compiling Library /Some Project/Project/Library/ (275154) ... error CS1040: ...",
+    "serverNumber": "WEB-4",
+    "timedOut": false,                  // listening worked, but nothing arrived in time
+    "unavailable": false,               // could not listen at all; the result is unknown
+    "error": null                       // why it was unavailable
+}
+```
+
+```rawData``` is ```null``` on success and carries the full compiler output - the same text a recompile call returns - on failure. This is considerably quicker than recompiling to find out: a successful compile typically reports back in about two seconds, and a failing one in under ten, where a recompile call on a large Library often exceeds a 30 second timeout.
+
+Three caveats:
+
+* **Asking for the compile result never costs you the save.** If the notification channel cannot be opened, or drops while waiting, the asset is still saved exactly as it would have been without ```waitForCompilation```, and ```compilation.unavailable``` is ```true``` with the reason in ```compilation.error```.
+* **A timeout is not a failure, and neither is an unavailable result.** The save already succeeded; what failed was finding out about the compile. Neither case reports a verdict: ```succeeded``` is ```null```, not ```false```. Check ```unavailable``` and ```timedOut``` before reading it.
+* **The notification does not identify the asset it relates to.** It means "the next compile finished", not "your compile finished". The channel belongs to a single user, so no one else's work appears on it, but a compile that the same user triggers elsewhere - a second save from your own code, or one from their browser - can be picked up instead. Save and wait one at a time if that matters.
+
 #### Upload
 
 To upload a binary file to a new digital asset, use the ```upload``` function, passing in an instance of the ```Asset.UploadRequest``` class:
@@ -604,6 +664,39 @@ let response = await crownpeak.Report.siteSummary();
 
 ---
 
+### Notification functions
+
+The CMS pushes certain results to the logged-in user over a WebSocket instead of returning them from the call that caused them - compile results in particular. ```crownpeak.Notifications``` subscribes to that channel, and is what ```Asset.updatePluginBody``` uses when you ask it to wait for a compile.
+
+Most callers only need the ```waitForCompilation``` argument on ```updatePluginBody```, documented above. Use this directly to watch for notifications over a longer period:
+
+```javascript
+await crownpeak.Notifications.connect();          // resolves once subscribed
+
+crownpeak.Notifications.on(notification => {
+    // { serverNumber: "WEB-4", message: "CompilationSucceeded", rawData: null, notificationType: 2 }
+    console.log(notification.message);
+});
+
+// ... do work that triggers compiles ...
+
+crownpeak.Notifications.disconnect();
+```
+
+```connect``` must be called **before** whatever you want to hear about: a compile result can arrive within 30ms of the save call returning, so subscribing afterwards can miss it. You must be logged in first, since the channel is authorised with your session.
+
+```waitForCompilation(timeoutMs)``` resolves with the next compile result, with ```timedOut: true``` if none arrives in time, or with ```unavailable: true``` if the channel is not connected or drops while waiting (it does not wait out the timeout in that case):
+
+```javascript
+let result = await crownpeak.Notifications.waitForCompilation(30000);
+```
+
+Notifications other than compile results (thumbnail generation, for example) arrive at handlers registered with ```on```, but are ignored by ```waitForCompilation```.
+
+This feature uses Node's built-in ```WebSocket```, so **Node 22 or later is required**. Nothing else in the library depends on it.
+
+---
+
 ### Tools functions
 
 #### Example
@@ -626,8 +719,6 @@ The response will contain a number of standard properties, plus one or more othe
 ```
 
 You should test the ```isSuccessful``` property before attempting to read other properties.
-
-```
 
 #### Recompile Library
 
@@ -786,6 +877,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.1.0         | 2023-07-10    | Refactor to use node-fetch, and add User controller. |
 | 1.2.0         | 2026-05-18    | Add setSession / clearSession for externally-captured sessions; fix multi-cookie handling in postRequest. |
 | 1.3.0         | 2026-09-17    | Add AssetProperties.versions, AssetProperties.allVersions, AssetProperties.versionContent and AssetProperties.revertToVersion. |
+| 1.4.0         | 2026-10-14    | Add Notifications controller, and an optional waitForCompilation argument to Asset.updatePluginBody that returns the CMS compile result. A notification channel that is unavailable never prevents the save. Requires Node 22 or later. |
 
 ## Credit
 Thanks to:
