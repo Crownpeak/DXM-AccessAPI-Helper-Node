@@ -6,7 +6,6 @@ const {
     promisify
 } = require("util");
 const { Console } = require("console");
-const { createForbiddenExclusivityError } = require("mocha/lib/errors");
 const openFile = promisify(fs.open);
 const readFile = promisify(fs.readFile);
 const Util = crownpeakapi.Util;

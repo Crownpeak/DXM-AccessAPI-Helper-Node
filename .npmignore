@@ -6,7 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 
 #folders
-tests\
+tests/
+CLAUDE.md
 
 # Runtime data
 pids

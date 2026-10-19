@@ -26,7 +26,6 @@ class api {
         this._isAuthenticated = false;
         this._error;
         this.cookie;
-        this.https = require("https");
         this.webAPIRoot = "/cpt_webservice/accessapi/";
         this.Asset = new Asset(this);
         this.AssetProperties = new AssetProperties(this);
@@ -35,8 +34,11 @@ class api {
         this.User = new User(this);
         this.Tools = new Tools(this);
         this.Workflow = new Workflow(this);
-        this.setCookie = require('set-cookie-parser');
-        this.fetch = require("node-fetch");
+        // Node's built-in fetch (Node 22+), kept on the instance so that callers who reach for
+        // api.fetch - and tests - still have the same seam they had when this was node-fetch.
+        // Bound to the global, because the built-in is called here as this.fetch(...) and the
+        // standard implementation is not required to tolerate being invoked on another receiver.
+        this.fetch = globalThis.fetch.bind(globalThis);
     }
 
 
@@ -183,8 +185,11 @@ class api {
             const response = await this.fetch("https://" + this.host + "/" + this.instance + this.webAPIRoot + urlPath, options);
             const data = await response.json();
             if (data.resultCode === Util.ResponseMessages.Success) {
-                var combinedCookieHeader = response.headers.get('set-cookie');
-                data.cookie = this.setCookie.splitCookiesString(combinedCookieHeader);  
+                // getSetCookie() keeps each Set-Cookie header as its own entry. Reading
+                // headers.get('set-cookie') instead gives one comma-joined string, which cannot be
+                // split reliably (expiry dates contain commas) - that was what set-cookie-parser
+                // was here for, and this returns exactly the same array for a real CMS login.
+                data.cookie = response.headers.getSetCookie();
             }
            callback(data);
         } catch (error) {

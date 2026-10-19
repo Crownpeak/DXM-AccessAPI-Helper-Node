@@ -6,6 +6,8 @@ in developing client-side applications that leverage DXM for content management 
 
 ## Usage
 
+**Requires Node 22 or later.** The library uses Node's built-in ```fetch``` and ```WebSocket```, and has no runtime dependencies of its own.
+
 Installation instructions:
 
 ```javascript
@@ -48,7 +50,7 @@ crownpeak.setSession({
     host: "cms.crownpeak.net",
     instance: "cms-instance",
     apiKey: "api-key",
-    cookie: [/* array of "name=value; Path=/; ..." strings, same shape as set-cookie-parser.splitCookiesString output */]
+    cookie: [/* array of "name=value; Path=/; ..." strings, one per Set-Cookie header, as returned by response.headers.getSetCookie() */]
 });
 ```
 
@@ -693,7 +695,7 @@ let result = await crownpeak.Notifications.waitForCompilation(30000);
 
 Notifications other than compile results (thumbnail generation, for example) arrive at handlers registered with ```on```, but are ignored by ```waitForCompilation```.
 
-This feature uses Node's built-in ```WebSocket```, so **Node 22 or later is required**. Nothing else in the library depends on it.
+This feature uses Node's built-in ```WebSocket```, which is one of the reasons the library requires Node 22 or later.
 
 ---
 
@@ -878,6 +880,7 @@ let response = await crownpeak.Workflow.read(workflowId);
 | 1.2.0         | 2026-05-18    | Add setSession / clearSession for externally-captured sessions; fix multi-cookie handling in postRequest. |
 | 1.3.0         | 2026-09-17    | Add AssetProperties.versions, AssetProperties.allVersions, AssetProperties.versionContent and AssetProperties.revertToVersion. |
 | 1.4.0         | 2026-10-14    | Add Notifications controller, and an optional waitForCompilation argument to Asset.updatePluginBody that returns the CMS compile result. A notification channel that is unavailable never prevents the save. Requires Node 22 or later. |
+| 1.5.0         | 2026-10-19    | Remove all runtime dependencies: node-fetch replaced by Node's built-in fetch, set-cookie-parser by Headers.getSetCookie(), and the unused istextorbinary and react-native-dotenv packages dropped. mocha moved to devDependencies. |
 
 ## Credit
 Thanks to:

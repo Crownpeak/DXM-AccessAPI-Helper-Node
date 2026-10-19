@@ -79,7 +79,9 @@ class AccessAsset {
      */
     async downloadAttachmentAsBuffer(path) {
         const response = await Util.makeCmsCallRaw(this._api, path);
-        return response.buffer();
+        // response.buffer() was a node-fetch extension and does not exist on the standard Response
+        // that Node's built-in fetch returns; arrayBuffer() is the equivalent everywhere.
+        return Buffer.from(await response.arrayBuffer());
     }
 
     /**
